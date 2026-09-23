@@ -1,0 +1,190 @@
+// ─────────────────────────────────────────────────────────────
+// PGHQ Standard — Prisma Schema
+// Paying Guest / Hostel Management System
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  DUE
+  ENDING_SOON
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+  PARTIAL
+  OVERDUE
+}
+
+enum RoomType {
+  SINGLE
+  DOUBLE
+  TRIPLE
+  QUAD
+  DORMITORY
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum TokenStatus {
+  TAKEN
+  PENDING
+}
+
+// ─── Models ─────────────────────────────────────────────────
+
+/// Owner / Admin user who manages properties
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  phone        String?
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  properties   Property[]
+
+  @@map("users")
+}
+
+/// A physical property (hostel / PG building)
+model Property {
+  id        String   @id @default(cuid())
+  ownerId   String
+  name      String
+  address   String
+  city      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  floors    Floor[]
+
+  @@index([ownerId])
+  @@map("properties")
+}
+
+/// A floor within a property
+model Floor {
+  id          String   @id @default(cuid())
+  propertyId  String
+  floorNumber Int
+  name        String?  /// e.g. "Ground Floor", "First Floor"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rooms       Room[]
+
+  @@unique([propertyId, floorNumber])
+  @@index([propertyId])
+  @@map("floors")
+}
+
+/// A room on a given floor
+model Room {
+  id         String   @id @default(cuid())
+  floorId    String
+  roomNumber String
+  roomType   RoomType @default(DOUBLE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  floor      Floor              @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  beds       Bed[]
+  tasks      MaintenanceTask[]
+
+  @@unique([floorId, roomNumber])
+  @@index([floorId])
+  @@map("rooms")
+}
+
+/// An individual bed inside a room
+model Bed {
+  id        String    @id @default(cuid())
+  roomId    String
+  bedNumber Int
+  status    BedStatus @default(AVAILABLE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  tenant    Tenant?   /// One-to-one: a bed has at most one active tenant
+
+  @@unique([roomId, bedNumber])
+  @@index([roomId])
+  @@index([status])
+  @@map("beds")
+}
+
+/// A tenant (paying guest) occupying a bed
+model Tenant {
+  id             String        @id @default(cuid())
+  bedId          String        @unique  /// One-to-one with Bed
+  name           String
+  phone          String
+  email          String?
+  checkInDate    DateTime
+  leaseEndDate   DateTime?
+  advanceDeposit Float         @default(0)
+  monthlyRent    Float
+  rentDueDate    Int           @default(1) /// Day of month (1-31) when rent is due
+  paymentStatus  PaymentStatus @default(UNPAID)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  bed            Bed           @relation(fields: [bedId], references: [id], onDelete: Cascade)
+  mealLogs       MealLog[]
+
+  @@index([bedId])
+  @@index([paymentStatus])
+  @@map("tenants")
+}
+
+/// Maintenance / repair task linked to a room
+model MaintenanceTask {
+  id          String            @id @default(cuid())
+  roomId      String
+  description String
+  status      MaintenanceStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  room        Room              @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([status])
+  @@map("maintenance_tasks")
+}
+
+/// Daily meal-token log per tenant (optional feature)
+model MealLog {
+  id          String      @id @default(cuid())
+  tenantId    String
+  date        DateTime    @db.Date
+  tokenStatus TokenStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, date]) /// One entry per tenant per day
+  @@index([tenantId])
+  @@index([date])
+  @@map("meal_logs")
+}
