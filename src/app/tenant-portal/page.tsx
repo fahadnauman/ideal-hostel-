@@ -1,8 +1,8 @@
 "use client";
 
-import { Building2, CreditCard, Wrench, UtensilsCrossed, FileText, ChevronRight, Bell, Calendar, Coffee, Sun, Moon } from "lucide-react";
+import React, { useState } from "react";
+import { Building2, CreditCard, Wrench, UtensilsCrossed, FileText, ChevronRight, Bell, Coffee, Sun, Moon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 
 export default function TenantPortal() {
   const [bfastOpt, setBfastOpt] = useState(true);
@@ -90,7 +90,7 @@ export default function TenantPortal() {
           <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
             <div className="flex items-center gap-2 mb-4">
               <UtensilsCrossed className="w-5 h-5 text-slate-400" />
-              <h3 className="text-sm font-bold text-slate-900">Today's Meals</h3>
+              <h3 className="text-sm font-bold text-slate-900">Today&apos;s Meals</h3>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <MealToggleButton active={bfastOpt} onClick={() => setBfastOpt(!bfastOpt)} icon={Coffee} label="Breakfast" />
@@ -140,7 +140,7 @@ export default function TenantPortal() {
   );
 }
 
-function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
+function FeatureCard({ icon: Icon, title, desc }: { icon: React.ComponentType<{ className?: string }>, title: string, desc: string }) {
   return (
     <div className="flex gap-4">
       <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 mt-1">
@@ -154,7 +154,7 @@ function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, de
   );
 }
 
-function MealToggleButton({ active, onClick, icon: Icon, label }: { active: boolean, onClick: () => void, icon: any, label: string }) {
+function MealToggleButton({ active, onClick, icon: Icon, label }: { active: boolean, onClick: () => void, icon: React.ComponentType<{ className?: string }>, label: string }) {
   return (
     <button 
       onClick={onClick}
@@ -168,7 +168,7 @@ function MealToggleButton({ active, onClick, icon: Icon, label }: { active: bool
   );
 }
 
-function NavItem({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
+function NavItem({ icon: Icon, label, active = false }: { icon: React.ComponentType<{ className?: string }>, label: string, active?: boolean }) {
   return (
     <button className={`flex flex-col items-center gap-1 ${active ? 'text-slate-900' : 'text-slate-400'}`}>
       <Icon className="w-6 h-6" />

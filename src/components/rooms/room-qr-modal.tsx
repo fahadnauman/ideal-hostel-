@@ -10,10 +10,8 @@ import {
   Check,
   ExternalLink,
   QrCode,
-  Sparkles,
   Building2,
   Wrench,
-  ShieldAlert,
 } from "lucide-react";
 import type { Room } from "@/types";
 

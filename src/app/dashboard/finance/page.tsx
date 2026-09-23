@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { mockPaymentHistory, mockRoomsByFloor } from "@/data/mock-rooms";
-import type { PaymentRecord, PaymentStatus } from "@/types";
+import type { PaymentRecord, PaymentStatus, PaymentMode } from "@/types";
 import { 
   IndianRupee, 
   Wallet, 
@@ -259,7 +259,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
   );
 }
 
-function ModeBadge({ mode }: { mode: any }) {
+function ModeBadge({ mode }: { mode: PaymentMode | string | null | undefined }) {
   if (!mode) return <span className="text-muted-foreground text-xs">—</span>;
   
   const config = {

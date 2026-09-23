@@ -7,12 +7,10 @@ import {
   X,
   User,
   Phone,
-  Mail,
   Calendar,
   CalendarClock,
   IndianRupee,
   Wallet,
-  CreditCard,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -259,7 +257,7 @@ export default function TenantSheet({
               {/* Meal Preferences */}
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Today's Meal Preferences
+                  Today&apos;s Meal Preferences
                 </h3>
                 <div className="grid grid-cols-3 gap-2.5">
                   <MealToggle type="BREAKFAST" icon={Coffee} />
@@ -356,23 +354,6 @@ export default function TenantSheet({
 
 /* ─── Sub-components ─────────────────────────────────────── */
 
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 text-sm">
-      <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-      <span className="text-muted-foreground w-16 shrink-0">{label}</span>
-      <span className="font-medium truncate">{value}</span>
-    </div>
-  );
-}
 
 function DetailCard({
   icon: Icon,

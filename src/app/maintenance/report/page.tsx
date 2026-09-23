@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState, Suspense, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Building2,
@@ -18,12 +18,9 @@ import {
   Sparkles,
   HelpCircle,
   Clock,
-  ChevronRight,
   ShieldCheck,
   PhoneCall,
   User,
-  ArrowLeft,
-  Image as ImageIcon,
 } from "lucide-react";
 import type { MaintenanceCategory } from "@/types";
 
@@ -132,7 +129,6 @@ const categories: CategoryConfig[] = [
 
 function MaintenanceReportForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const initialRoom =
     searchParams.get("roomNumber") ||

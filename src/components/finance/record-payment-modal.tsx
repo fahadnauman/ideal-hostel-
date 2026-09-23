@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { PaymentMode, PaymentStatus } from "@/types";
+import type { PaymentMode } from "@/types";
 import { X, CheckCircle2, Banknote, Landmark, Smartphone, IndianRupee } from "lucide-react";
 
 interface RecordPaymentModalProps {
@@ -14,7 +14,6 @@ interface RecordPaymentModalProps {
 }
 
 export default function RecordPaymentModal({
-  tenantId,
   tenantName,
   amountDue,
   isOpen,

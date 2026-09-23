@@ -73,9 +73,7 @@ const initialSeedTasks: MaintenanceTask[] = [
 /* ─── Global State for Development / Serverless Persistence ── */
 
 declare global {
-  // eslint-disable-next-line no-var
   var __pghq_maintenance_tasks: MaintenanceTask[] | undefined;
-  // eslint-disable-next-line no-var
   var __pghq_task_counter: number | undefined;
 }
 

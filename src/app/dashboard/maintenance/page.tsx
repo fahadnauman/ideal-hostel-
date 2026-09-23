@@ -20,19 +20,30 @@ import {
   Hammer,
   Sparkles,
   HelpCircle,
-  ExternalLink,
   Phone,
   User,
-  Layers,
-  ArrowRight,
   Eye,
   X,
   Building2,
-  Calendar,
 } from "lucide-react";
-import type { MaintenanceTask, MaintenanceStatus, MaintenanceCategory } from "@/types";
+import type { MaintenanceTask, MaintenanceStatus, MaintenanceCategory, Room } from "@/types";
 import RoomQrModal from "@/components/rooms/room-qr-modal";
-import { mockFloors, mockRoomsByFloor } from "@/data/mock-rooms";
+
+function formatRelativeTime(isoString: string): string {
+  try {
+    const diff = Date.now() - new Date(isoString).getTime();
+    const mins = Math.floor(diff / (1000 * 60));
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  } catch {
+    return "Recently";
+  }
+}
+
 
 /* ─── Category Visual Mappings ──────────────────────────────── */
 
@@ -105,7 +116,7 @@ export default function OwnerMaintenancePage() {
 
   // Modals
   const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
-  const [qrModalRoom, setQrModalRoom] = useState<{ id: string; roomNumber: string; floorId: string; roomType: "DOUBLE"; beds: [] } | null>(null);
+  const [qrModalRoom, setQrModalRoom] = useState<Room | null>(null);
   const [showManualModal, setShowManualModal] = useState(false);
 
   // Manual create form state
@@ -133,7 +144,27 @@ export default function OwnerMaintenancePage() {
   };
 
   useEffect(() => {
-    fetchTasks();
+    let mounted = true;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/maintenance");
+        const data = await res.json();
+        if (mounted && data.success && Array.isArray(data.tasks)) {
+          setTasks(data.tasks);
+        }
+      } catch (err) {
+        console.error("Failed to load maintenance tasks:", err);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+          setIsRefreshing(false);
+        }
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Quick action: Update status
@@ -229,20 +260,6 @@ export default function OwnerMaintenancePage() {
     return { total, pending, inProgress, resolved, resolutionRate };
   }, [tasks]);
 
-  const formatRelativeTime = (isoString: string) => {
-    try {
-      const diff = Date.now() - new Date(isoString).getTime();
-      const mins = Math.floor(diff / (1000 * 60));
-      if (mins < 1) return "Just now";
-      if (mins < 60) return `${mins}m ago`;
-      const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return `${hrs}h ago`;
-      const days = Math.floor(hrs / 24);
-      return `${days}d ago`;
-    } catch {
-      return "Recently";
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -644,7 +661,7 @@ export default function OwnerMaintenancePage() {
       {/* ── Room QR Modal ─────────────────────────────────────── */}
       {qrModalRoom && (
         <RoomQrModal
-          room={qrModalRoom as any}
+          room={qrModalRoom}
           propertyTitle="Sunrise PG Hostel"
           isOpen={!!qrModalRoom}
           onClose={() => setQrModalRoom(null)}

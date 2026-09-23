@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { mockMealRecords } from "@/data/mock-rooms";
-import type { MealType, MealRecord } from "@/types";
+import type { MealType } from "@/types";
 import { UtensilsCrossed, ChevronLeft, ChevronRight, Calendar, Coffee, Sun, Moon, CheckCircle2, XCircle } from "lucide-react";
 
 export default function MealsDashboard() {

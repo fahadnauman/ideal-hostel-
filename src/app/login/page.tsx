@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -9,8 +9,14 @@ import {
   ShieldCheck,
   Sparkles,
   Delete,
-  CheckCircle2,
 } from "lucide-react";
+
+function setSessionCookies() {
+  if (typeof document !== "undefined") {
+    document.cookie = "pghq_owner_session=active; path=/; max-age=2592000; SameSite=Lax";
+    localStorage.setItem("pghq_owner_authenticated", "true");
+  }
+}
 
 export default function LoginPage() {
   const [pin, setPin] = useState<string>("");
@@ -20,33 +26,29 @@ export default function LoginPage() {
 
   const handleInstantBypass = () => {
     setIsLoading(true);
-    // Set persistent session cookies and localStorage flag
-    if (typeof document !== "undefined") {
-      document.cookie = "pghq_owner_session=active; path=/; max-age=2592000; SameSite=Lax";
-      localStorage.setItem("pghq_owner_authenticated", "true");
-    }
+    setSessionCookies();
     setTimeout(() => {
       router.push("/dashboard");
     }, 300);
   };
 
-  const handlePinSubmit = (enteredPin: string) => {
-    // Default Owner PIN is 1234
-    if (enteredPin === "1234" || enteredPin.length === 4) {
-      setIsLoading(true);
-      setError(null);
-      if (typeof document !== "undefined") {
-        document.cookie = "pghq_owner_session=active; path=/; max-age=2592000; SameSite=Lax";
-        localStorage.setItem("pghq_owner_authenticated", "true");
+  const handlePinSubmit = useCallback(
+    (enteredPin: string) => {
+      // Default Owner PIN is 1234
+      if (enteredPin === "1234" || enteredPin.length === 4) {
+        setIsLoading(true);
+        setError(null);
+        setSessionCookies();
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 350);
+      } else {
+        setError("Incorrect PIN. Please use default PIN: 1234");
+        setPin("");
       }
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 350);
-    } else {
-      setError("Incorrect PIN. Please use default PIN: 1234");
-      setPin("");
-    }
-  };
+    },
+    [router]
+  );
 
   const handleKeyPress = (num: string) => {
     if (pin.length < 4) {
@@ -68,16 +70,25 @@ export default function LoginPage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (/^[0-9]$/.test(e.key)) {
-        handleKeyPress(e.key);
+        setPin((prev) => {
+          if (prev.length < 4) {
+            const nextPin = prev + e.key;
+            if (nextPin.length === 4) {
+              handlePinSubmit(nextPin);
+            }
+            return nextPin;
+          }
+          return prev;
+        });
+        setError(null);
       } else if (e.key === "Backspace") {
-        handleDelete();
-      } else if (e.key === "Enter" && pin.length === 4) {
-        handlePinSubmit(pin);
+        setPin((prev) => prev.slice(0, -1));
+        setError(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [pin]);
+  }, [handlePinSubmit]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">

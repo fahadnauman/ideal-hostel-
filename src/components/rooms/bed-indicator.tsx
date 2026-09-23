@@ -11,7 +11,6 @@ interface BedIndicatorProps {
 
 export default function BedIndicator({ bed, onClick }: BedIndicatorProps) {
   const config = getStatusConfig(bed.status);
-  const hasInteraction = true; // allow clicking any bed (to view details or assign tenant)
 
   return (
     <button
