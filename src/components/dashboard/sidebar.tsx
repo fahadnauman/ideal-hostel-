@@ -70,9 +70,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         `}
       >
         {/* ── Logo ─────────────────────────────────────── */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-zinc-900">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-white/10">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-yellow-400 text-black flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F5C800] text-black flex items-center justify-center shadow-xs">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
@@ -91,9 +91,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* ── Owner Mode Callout ───────────────────────── */}
-        <div className="mx-3 my-3 p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+        <div className="mx-3 my-3 p-2.5 rounded-xl bg-zinc-900 border border-white/5">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-yellow-500 shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[#F5C800] shrink-0" />
             <span className="text-xs font-bold text-zinc-100">Owner Direct Pass Active</span>
           </div>
           <p className="text-[11px] text-zinc-400 mt-1">
@@ -119,7 +119,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   transition-default group min-h-[44px]
                   ${
                     isActive
-                      ? "bg-zinc-800 text-yellow-400 shadow-2xs"
+                      ? "bg-zinc-800 text-[#F5C800] shadow-2xs"
                       : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                   }
                 `}
@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <item.icon
                   className={`w-4 h-4 shrink-0 ${
                     isActive
-                      ? "text-yellow-400"
+                      ? "text-[#F5C800]"
                       : "text-zinc-500 group-hover:text-white"
                   }`}
                 />

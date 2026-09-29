@@ -339,12 +339,12 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
 
   return (
     <div
-      className={`${index % 2 === 0 ? "card-shadow" : "card-shadow-yellow"} rounded-2xl overflow-hidden transition-all duration-200 ${
+      className={`card-shadow rounded-2xl overflow-hidden transition-all duration-200 ${
         task.status === "DONE"
-          ? "border-slate-200 opacity-70"
+          ? "border-slate-800 opacity-70"
           : isOverdue
-          ? "border-rose-300 shadow-rose-50"
-          : "border-slate-200/50"
+          ? "border-rose-900 shadow-rose-900/20"
+          : "border-slate-800"
       } hover:shadow-md`}
     >
       {/* Priority bar */}
