@@ -22,10 +22,10 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen flex text-slate-900 font-sans">
+    <div className="flex h-screen overflow-hidden text-slate-900 font-sans">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <Header onMenuClick={() => setSidebarOpen(true)} />
 
         <main className="flex-1 p-3.5 sm:p-6 pb-28 lg:pb-8">
