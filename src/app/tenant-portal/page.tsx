@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import Link from "next/link";
@@ -34,8 +34,80 @@ import {
   HelpCircle,
   RefreshCw,
   SmartphoneNfc,
+  Star,
 } from "lucide-react";
 import type { OwnerSettings, MaintenanceCategory, MaintenanceTask } from "@/types";
+
+/* ─── Celebratory Success Modal ─────────────────────────────── */
+
+interface SuccessModalProps {
+  open: boolean;
+  title: string;
+  body: string;
+  onClose: () => void;
+}
+
+function SuccessModal({ open, title, body, onClose }: SuccessModalProps) {
+  // Auto-close after 4 seconds
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(onClose, 4000);
+    return () => clearTimeout(t);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Card */}
+      <div className="relative bg-white rounded-3xl p-8 w-full max-w-xs text-center shadow-2xl animate-bounce-in">
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Celebration Icon */}
+        <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-300 flex items-center justify-center mb-4 shadow-inner">
+          <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+        </div>
+
+        {/* Stars decoration */}
+        <div className="flex items-center justify-center gap-1 mb-3">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className="w-4 h-4 text-amber-400 fill-amber-400"
+            />
+          ))}
+        </div>
+
+        <h2 className="text-xl font-black text-slate-900 mb-2">{title}</h2>
+        <p className="text-sm text-slate-600 leading-relaxed">{body}</p>
+
+        {/* Auto-dismiss notice */}
+        <p className="text-[11px] text-slate-400 mt-4 font-medium">
+          This message will close automatically…
+        </p>
+
+        <button
+          onClick={onClose}
+          className="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-extrabold rounded-xl transition-colors cursor-pointer"
+        >
+          Got it, thanks! 🙌
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /* ─── Maintenance Categories ────────────────────────────────── */
 
@@ -164,6 +236,21 @@ function TenantPortalContent() {
   const [existingRoomTickets, setExistingRoomTickets] = useState<MaintenanceTask[]>([]);
   const maintPhotoRef = useRef<HTMLInputElement>(null);
 
+  // Celebratory Success Modal State
+  const [successModal, setSuccessModal] = useState<{
+    open: boolean;
+    title: string;
+    body: string;
+  }>({ open: false, title: "", body: "" });
+
+  const showSuccess = useCallback((title: string, body: string) => {
+    setSuccessModal({ open: true, title, body });
+  }, []);
+
+  const closeSuccess = useCallback(() => {
+    setSuccessModal((prev) => ({ ...prev, open: false }));
+  }, []);
+
   // Fetch Settings, Tenant info, & existing room tickets
   useEffect(() => {
     async function loadData() {
@@ -262,6 +349,10 @@ function TenantPortalContent() {
       if (res.ok) {
         const data = await res.json();
         setProofSubmitted(data.submission?.id || "SUB-CONFIRMED");
+        showSuccess(
+          "Applied Successfully! 🎉",
+          "Your rent payment reference has been sent to the property owner. They will verify and update your ledger shortly."
+        );
       } else {
         alert("Failed to record payment submission. Please try again.");
       }
@@ -293,10 +384,15 @@ function TenantPortalContent() {
       });
 
       const label = type.charAt(0) + type.slice(1).toLowerCase();
+      const newStatus = newVal ? "Opted In ✓" : "Skipping today";
       setMealToast(
         newVal
           ? `${label} headcount updated: You're OPTED IN.`
           : `${label} headcount updated: Marked as SKIPPING.`
+      );
+      showSuccess(
+        "Applied Successfully! 🍽️",
+        `Your ${label.toLowerCase()} preference (${newStatus}) has been sent to the property owner's kitchen team.`
       );
       setTimeout(() => setMealToast(null), 3000);
     } catch (err) {
@@ -338,6 +434,10 @@ function TenantPortalContent() {
         setExistingRoomTickets((prev) => [data.task, ...prev]);
         setMaintDesc("");
         setMaintPhoto(null);
+        showSuccess(
+          "Applied Successfully! 🔧",
+          "Your repair request has been sent to the property owner. The maintenance team will attend to it as soon as possible."
+        );
       } else {
         alert("Failed to submit maintenance request.");
       }
@@ -1137,6 +1237,14 @@ function TenantPortalContent() {
           PGHQ Standard · Sunrise PG Hostel Door Portal · 24/7 Desk: {settings.ownerPhone}
         </div>
       </div>
+
+      {/* ── Celebratory Success Modal ── */}
+      <SuccessModal
+        open={successModal.open}
+        title={successModal.title}
+        body={successModal.body}
+        onClose={closeSuccess}
+      />
     </div>
   );
 }

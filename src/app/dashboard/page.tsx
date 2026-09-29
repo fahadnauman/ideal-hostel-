@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   BedDouble,
@@ -14,7 +17,12 @@ import {
   ShieldCheck,
   ChevronRight,
   QrCode,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  ClipboardList,
 } from "lucide-react";
+import type { MaintenanceTask } from "@/types";
 
 /* ─── Metric Card Data ──────────────────────────────────── */
 
@@ -72,12 +80,164 @@ const metrics: Metric[] = [
   },
 ];
 
+/* ─── Category Labels ────────────────────────────────────── */
+
+const CAT_LABELS: Record<string, string> = {
+  PLUMBING: "Plumbing",
+  ELECTRICAL: "Electrical",
+  AC_VENTILATION: "AC & Fan",
+  CARPENTRY: "Lock & Wood",
+  CLEANING: "Cleaning",
+  OTHER: "Other",
+};
+
+const CAT_COLORS: Record<string, string> = {
+  PLUMBING: "bg-blue-50 text-blue-700 border-blue-200",
+  ELECTRICAL: "bg-amber-50 text-amber-700 border-amber-200",
+  AC_VENTILATION: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  CARPENTRY: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  CLEANING: "bg-purple-50 text-purple-700 border-purple-200",
+  OTHER: "bg-slate-100 text-slate-700 border-slate-200",
+};
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+/* ─── Pending Maintenance Widget ─────────────────────────── */
+
+function PendingMaintenanceWidget() {
+  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/maintenance");
+        if (res.ok) {
+          const data = await res.json();
+          const pending = (data.tasks as MaintenanceTask[]).filter(
+            (t) => t.status === "PENDING" || t.status === "IN_PROGRESS"
+          );
+          setTasks(pending.slice(0, 5));
+        }
+      } catch {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+            <Wrench className="w-5 h-5 text-amber-700" />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-slate-900">
+              Pending Maintenance
+            </h2>
+            <p className="text-xs text-slate-500">Tickets requiring owner action</p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard/maintenance"
+          className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
+        >
+          View all <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+          <p className="text-sm font-bold text-slate-800">All clear!</p>
+          <p className="text-xs text-slate-500 mt-0.5">No pending maintenance tickets.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {tasks.map((t) => (
+            <Link
+              key={t.id}
+              href="/dashboard/maintenance"
+              className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 hover:bg-slate-50 -mx-1 px-1 rounded-xl transition-colors"
+            >
+              <div
+                className={`mt-0.5 shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center ${
+                  CAT_COLORS[t.category] || "bg-slate-100 text-slate-700 border-slate-200"
+                }`}
+              >
+                <Wrench className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-bold text-slate-900 truncate">
+                    {CAT_LABELS[t.category] || t.category} — Room {t.roomNumber}
+                  </p>
+                  <span
+                    className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      t.status === "IN_PROGRESS"
+                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                        : "bg-amber-50 text-amber-700 border-amber-200"
+                    }`}
+                  >
+                    {t.status === "IN_PROGRESS" ? "In Progress" : "Pending"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                  {t.description}
+                </p>
+                <div className="flex items-center gap-1 mt-0.5 text-[10px] text-slate-400">
+                  <Clock className="w-2.5 h-2.5" />
+                  <span>{timeAgo(t.createdAt)}</span>
+                  {t.tenantName && (
+                    <>
+                      <span>·</span>
+                      <span>{t.tenantName}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {tasks.length > 0 && (
+        <Link
+          href="/dashboard/maintenance"
+          className="flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors"
+        >
+          <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+          Manage all {tasks.length} open tickets
+        </Link>
+      )}
+    </div>
+  );
+}
+
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* ── Welcome / Client Handoff Banner ─────────────── */}
+      {/* ── Welcome / Client Handoff Banner ─────────────────── */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 mb-1">
@@ -190,8 +350,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Quick Info & Actions Row ────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      {/* ── Three-Column Bottom Section ──────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Quick Actions */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow space-y-4">
           <div className="flex items-center justify-between">
@@ -223,10 +383,10 @@ export default function DashboardPage() {
                 bg: "bg-amber-50 text-amber-700 border-amber-200",
               },
               {
-                label: "Maintenance",
-                desc: "Room repairs & complaints",
-                icon: Wrench,
-                href: "/dashboard/maintenance",
+                label: "Task Board",
+                desc: "Personal chores & notes",
+                icon: ClipboardList,
+                href: "/dashboard/tasks",
                 bg: "bg-slate-100 text-slate-800 border-slate-200",
               },
             ].map((action) => (
@@ -252,6 +412,9 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+
+        {/* Pending Maintenance Widget */}
+        <PendingMaintenanceWidget />
 
         {/* Recent Activity */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow space-y-4">
@@ -298,13 +461,9 @@ export default function DashboardPage() {
                     >
                       {item.badge}
                     </span>
-                    <span className="text-xs text-slate-400 sm:hidden">
-                      {item.time}
-                    </span>
+                    <span className="text-xs text-slate-400 sm:hidden">{item.time}</span>
                   </div>
-                  <p className="text-sm font-medium text-slate-800">
-                    {item.text}
-                  </p>
+                  <p className="text-sm font-medium text-slate-800">{item.text}</p>
                 </div>
                 <span className="text-xs font-medium text-slate-400 whitespace-nowrap hidden sm:inline-block">
                   {item.time}
@@ -317,4 +476,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

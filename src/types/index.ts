@@ -142,3 +142,21 @@ export interface PaymentSubmission {
   status: "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED";
   submittedAt: string;
 }
+
+/* ─── Owner Productivity Tasks ───────────────────────────────── */
+
+export type TaskPriority = "HIGH" | "MEDIUM" | "LOW";
+export type TaskStatus = "PENDING" | "IN_PROGRESS" | "DONE";
+
+export interface OwnerTask {
+  id: string;
+  title: string;
+  notes: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+  dueDate: string | null;
+  category: string;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
