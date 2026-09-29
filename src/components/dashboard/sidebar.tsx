@@ -69,14 +69,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         `}
       >
         {/* ── Logo ─────────────────────────────────────── */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-white/10">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#F5C800] text-black flex items-center justify-center shadow-xs">
-              <Building2 className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "'Opificio Round', 'Opificio', sans-serif" }}>
-                Ideal Hostel
+        <div className="h-16 flex items-center justify-between px-5 border-b border-white/10 shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <svg viewBox="0 0 400 400" className="w-9 h-9 shrink-0 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="200" cy="200" r="200" fill="#F5C800" />
+              <circle cx="200" cy="200" r="185" fill="none" stroke="#121212" strokeWidth="8" />
+              <text x="200" y="200" fontFamily="'Opificio Round', 'Opificio', sans-serif" fontSize="115" fill="#121212" textAnchor="middle" fontWeight="600" letterSpacing="-1">ideal</text>
+              <text x="200" y="270" fontFamily="'Opificio Round', 'Opificio', sans-serif" fontSize="52" fill="#121212" textAnchor="middle" fontWeight="600">enterprises</text>
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold tracking-tight text-white leading-none" style={{ fontFamily: "'Opificio Round', 'Opificio', sans-serif" }}>
+                Ideal
+              </span>
+              <span className="text-[11px] text-[#F5C800] font-medium tracking-wide mt-0.5 uppercase" style={{ fontFamily: "'Opificio Round', 'Opificio', sans-serif" }}>
+                Enterprises
               </span>
             </div>
           </Link>
@@ -137,7 +143,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* ── Footer ───────────────────────────────────── */}
-        <div className="p-3 border-t border-zinc-900">
+        <div className="p-3 border-t border-white/5 space-y-2">
           <button
             onClick={handleLock}
             className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold
@@ -147,6 +153,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <Lock className="w-4 h-4 shrink-0 text-zinc-500" />
             Lock / Exit Bypass
           </button>
+          
+          <div className="pt-2 text-center">
+            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+              PGHQ • Powered by Nauman Labs
+            </p>
+          </div>
         </div>
       </aside>
     </>
