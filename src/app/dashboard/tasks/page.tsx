@@ -339,7 +339,7 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
 
   return (
     <div
-      className={`${index % 2 === 0 ? "card-shadow" : "card-shadow-black"} rounded-2xl overflow-hidden transition-all duration-200 ${
+      className={`card-shadow rounded-2xl overflow-hidden transition-all duration-200 ${
         task.status === "DONE"
           ? "opacity-70"
           : isOverdue

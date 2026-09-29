@@ -117,12 +117,12 @@
 }
 
 html {
-  background-color: #faf8f3;
+  background-color: #E5C158;
   color: #0f172a;
 }
 
 body {
-  background: linear-gradient(135deg, #fffdf7 0%, #fdf5d3 100%);
+  background: linear-gradient(135deg, #F3D152 0%, #E2BA39 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
