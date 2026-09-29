@@ -182,7 +182,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 card-shadow">
+    <header className="h-16 bg-[#121212] border-b border-zinc-800/60 sticky top-0 z-30">
       <div className="h-full flex items-center justify-between px-3 sm:px-6">
         {/* ── Left: Menu & Property Switcher ──────────────────── */}
         <div className="flex items-center gap-2 sm:gap-3">

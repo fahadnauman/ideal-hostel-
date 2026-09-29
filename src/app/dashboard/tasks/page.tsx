@@ -278,10 +278,11 @@ function AddTaskForm({ onAdd }: AddTaskFormProps) {
 
 interface TaskCardProps {
   task: OwnerTask;
+  index: number;
   onUpdate: () => void;
 }
 
-function TaskCard({ task, onUpdate }: TaskCardProps) {
+function TaskCard({ task, index, onUpdate }: TaskCardProps) {
   const [updating, setUpdating] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -338,12 +339,12 @@ function TaskCard({ task, onUpdate }: TaskCardProps) {
 
   return (
     <div
-      className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200 ${
+      className={`${index % 2 === 0 ? "card-shadow" : "card-shadow-yellow"} rounded-2xl overflow-hidden transition-all duration-200 ${
         task.status === "DONE"
           ? "border-slate-200 opacity-70"
           : isOverdue
           ? "border-rose-300 shadow-rose-50"
-          : "border-slate-200"
+          : "border-slate-200/50"
       } hover:shadow-md`}
     >
       {/* Priority bar */}
@@ -723,8 +724,8 @@ export default function TasksPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredTasks.map((task) => (
-                <TaskCard key={task.id} task={task} onUpdate={fetchTasks} />
+              {filteredTasks.map((task, index) => (
+                <TaskCard key={task.id} task={task} index={index} onUpdate={fetchTasks} />
               ))}
             </div>
           )}
