@@ -62,7 +62,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         className={`
           fixed top-0 left-0 z-50 h-full w-[260px]
-          bg-white border-r border-slate-200
+          bg-zinc-950 border-r border-zinc-900 text-white
           flex flex-col
           transition-transform duration-200 ease-in-out
           lg:translate-x-0 lg:static lg:z-auto
@@ -70,33 +70,33 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         `}
       >
         {/* ── Logo ─────────────────────────────────────── */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-zinc-900">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-yellow-400 text-black flex items-center justify-center shadow-xs">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-base font-bold tracking-tight text-slate-900">
-                PGHQ Standard
+              <span className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "'Opificio Round', 'Opificio', sans-serif" }}>
+                Ideal Hostel
               </span>
             </div>
           </Link>
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-default cursor-pointer"
+            className="lg:hidden p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-default cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* ── Owner Mode Callout ───────────────────────── */}
-        <div className="mx-3 my-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+        <div className="mx-3 my-3 p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="text-xs font-bold text-slate-800">Owner Direct Pass Active</span>
+            <ShieldCheck className="w-4 h-4 text-yellow-500 shrink-0" />
+            <span className="text-xs font-bold text-zinc-100">Owner Direct Pass Active</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-zinc-400 mt-1">
             Zero password friction handoff enabled.
           </p>
         </div>
@@ -119,16 +119,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   transition-default group min-h-[44px]
                   ${
                     isActive
-                      ? "bg-slate-900 text-white shadow-2xs"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                      ? "bg-zinc-800 text-yellow-400 shadow-2xs"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                   }
                 `}
               >
                 <item.icon
                   className={`w-4 h-4 shrink-0 ${
                     isActive
-                      ? "text-white"
-                      : "text-slate-500 group-hover:text-slate-900"
+                      ? "text-yellow-400"
+                      : "text-zinc-500 group-hover:text-white"
                   }`}
                 />
                 {item.name}
@@ -138,14 +138,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* ── Footer ───────────────────────────────────── */}
-        <div className="p-3 border-t border-slate-200">
+        <div className="p-3 border-t border-zinc-900">
           <button
             onClick={handleLock}
             className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold
-                       text-slate-700 hover:text-rose-700 hover:bg-rose-50
+                       text-zinc-400 hover:text-red-400 hover:bg-zinc-900
                        transition-default cursor-pointer min-h-[44px]"
           >
-            <Lock className="w-4 h-4 shrink-0 text-slate-500" />
+            <Lock className="w-4 h-4 shrink-0 text-zinc-500" />
             Lock / Exit Bypass
           </button>
         </div>
