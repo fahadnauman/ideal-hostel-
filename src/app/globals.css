@@ -117,13 +117,12 @@
 }
 
 html {
-  background-color: #E5C158;
+  background-color: #ffffff;
   color: #0f172a;
 }
 
 body {
-  background: linear-gradient(135deg, #F3D152 0%, #E2BA39 100%);
-  background-attachment: fixed;
+  background-color: #ffffff;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
