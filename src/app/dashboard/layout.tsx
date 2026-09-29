@@ -22,17 +22,15 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen flex bg-[#0B0B0B] text-white font-sans">
-      <div className="flex-1 flex w-full bg-[#0B0B0B] rounded-[24px] sm:rounded-[32px] overflow-hidden">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="min-h-screen flex text-slate-900 font-sans">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto relative">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
 
-          <main className="flex-1 p-3.5 sm:p-6 pb-28 lg:pb-8 text-white">
-            <div className="max-w-7xl mx-auto">{children}</div>
-          </main>
-        </div>
+        <main className="flex-1 p-3.5 sm:p-6 pb-28 lg:pb-8">
+          <div className="max-w-7xl mx-auto">{children}</div>
+        </main>
       </div>
 
       {/* ── Dedicated Mobile Bottom Navigation Bar ────────── */}
