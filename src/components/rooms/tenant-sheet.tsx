@@ -254,6 +254,41 @@ export default function TenantSheet({
                 </div>
               </section>
 
+              {/* Emergency Contact */}
+              <section className="space-y-3">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Emergency Contact
+                </h3>
+                {tenant.emergencyContactName ? (
+                  <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <div>
+                      <p className="text-sm font-extrabold text-slate-900">
+                        {tenant.emergencyContactName}
+                      </p>
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        {tenant.emergencyContactRelation || "Guardian"} ·{" "}
+                        <span className="font-mono text-slate-800 font-bold">
+                          {tenant.emergencyContactPhone}
+                        </span>
+                      </p>
+                    </div>
+                    {tenant.emergencyContactPhone && (
+                      <a
+                        href={`tel:${tenant.emergencyContactPhone.replace(/[^0-9+]/g, "")}`}
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-default flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Call</span>
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-xs text-slate-500">
+                    No emergency contact on file.
+                  </div>
+                )}
+              </section>
+
               {/* Meal Preferences */}
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">

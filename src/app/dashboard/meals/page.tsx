@@ -1,20 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { mockMealRecords } from "@/data/mock-rooms";
-import type { MealType } from "@/types";
-import { UtensilsCrossed, ChevronLeft, ChevronRight, Calendar, Coffee, Sun, Moon, CheckCircle2, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getMealsForDate } from "@/lib/meals-store";
+import type { MealType, MealRecord } from "@/types";
+import { UtensilsCrossed, ChevronLeft, ChevronRight, Calendar, Coffee, Sun, Moon, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 
 export default function MealsDashboard() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const dateStr = selectedDate.toISOString().split("T")[0];
+  const isToday = dateStr === new Date().toISOString().split("T")[0];
+  const [records, setRecords] = useState<MealRecord[]>([]);
 
-  // In a real app, this would fetch from API based on selectedDate. For mock, we'll just filter mock data or fake it.
-  // We'll use mockMealRecords if date is today, else we'll fake some empty or generated data.
-  const todayStr = new Date().toISOString().split("T")[0];
-  const isToday = dateStr === todayStr;
-  
-  const records = isToday ? mockMealRecords : [];
+  useEffect(() => {
+    // Fetch live meals for the selected date
+    const liveRecords = getMealsForDate(dateStr);
+    setRecords(liveRecords);
+  }, [dateStr]);
+
+  const refreshMeals = () => {
+    const liveRecords = getMealsForDate(dateStr);
+    setRecords([...liveRecords]);
+  };
   
   // Calculate headcounts for the selected date
   const getCount = (type: MealType, optedIn: boolean) => {

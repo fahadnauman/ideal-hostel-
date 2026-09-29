@@ -33,18 +33,16 @@ export default function RoomQrModal({
 
   if (!isOpen || !room) return null;
 
-  // Build the unique reporting URL
+  // Build the unique dynamic 3-option tenant portal URL
   const origin =
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "http://localhost:3000";
-  const reportUrl = `${origin}/maintenance/report?room=${encodeURIComponent(
-    room.id
-  )}&roomNumber=${encodeURIComponent(room.roomNumber)}`;
+  const hubUrl = `${origin}/tenant-portal?room=${encodeURIComponent(room.roomNumber)}`;
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(reportUrl);
+      await navigator.clipboard.writeText(hubUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -66,7 +64,7 @@ export default function RoomQrModal({
 
     const downloadLink = document.createElement("a");
     downloadLink.href = svgUrl;
-    downloadLink.download = `room-${room.roomNumber}-maintenance-qr.svg`;
+    downloadLink.download = `room-${room.roomNumber}-tenant-hub-qr.svg`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -93,10 +91,10 @@ export default function RoomQrModal({
               </div>
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 leading-none">
-                  Room {room.roomNumber} QR Code
+                  Room {room.roomNumber} QR Placard
                 </h2>
                 <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                  Tenant Maintenance Door Placard
+                  Dynamic 3-Option Resident Door Placard
                 </p>
               </div>
             </div>
@@ -127,7 +125,7 @@ export default function RoomQrModal({
                   ROOM {room.roomNumber}
                 </h3>
                 <p className="text-xs font-bold text-slate-600">
-                  Quick Maintenance &amp; Repair Portal
+                  Resident 3-Option Self-Service Hub
                 </p>
               </div>
 
@@ -135,7 +133,7 @@ export default function RoomQrModal({
               <div className="inline-flex p-4 sm:p-5 bg-white border-2 border-slate-200 rounded-2xl shadow-inner mx-auto items-center justify-center">
                 <QRCodeSVG
                   id={`qr-svg-${room.roomNumber}`}
-                  value={reportUrl}
+                  value={hubUrl}
                   size={190}
                   level="H"
                   marginSize={1}
@@ -143,22 +141,30 @@ export default function RoomQrModal({
                 />
               </div>
 
-              {/* Step-by-step instructions */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left space-y-1.5">
+              {/* 3 Step-by-step options */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left space-y-2">
                 <div className="flex items-center gap-2 text-slate-900 font-extrabold text-xs">
-                  <Wrench className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                  <span>How to report an issue:</span>
+                  <span>Scan with Smartphone Camera to:</span>
                 </div>
-                <ol className="text-[11px] font-medium text-slate-600 space-y-1 list-decimal list-inside">
-                  <li>Open your smartphone camera &amp; scan this QR</li>
-                  <li>Select issue type (Plumbing, Electrical, AC, etc.)</li>
-                  <li>Submit in 1-touch — owner alerted immediately</li>
-                </ol>
+                <div className="grid grid-cols-1 gap-1 text-[11px] font-bold text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] shrink-0">1</span>
+                    <span><strong>Pay Rent:</strong> Direct GPay / UPI QR &amp; Receipt Upload</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px] shrink-0">2</span>
+                    <span><strong>Mess Toggle:</strong> Breakfast, Lunch &amp; Dinner Headcount</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] shrink-0">3</span>
+                    <span><strong>Repairs:</strong> 1-Touch Maintenance Ticket Dispatch</span>
+                  </div>
+                </div>
               </div>
 
               {/* URL fallback for manual entry */}
               <div className="text-[10px] text-slate-400 font-mono break-all pt-1 border-t border-slate-100">
-                Direct link: {reportUrl}
+                Direct link: {hubUrl}
               </div>
             </div>
 
@@ -167,7 +173,7 @@ export default function RoomQrModal({
               <input
                 type="text"
                 readOnly
-                value={reportUrl}
+                value={hubUrl}
                 className="text-xs font-mono text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 flex-1 select-all outline-none"
               />
               <button
@@ -208,14 +214,14 @@ export default function RoomQrModal({
             </button>
 
             <a
-              href={reportUrl}
+              href={hubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs sm:text-sm transition-default min-h-[44px]"
-              title="Test tenant reporting page"
+              title="Test dynamic 3-option resident hub"
             >
               <ExternalLink className="w-4 h-4" />
-              <span className="hidden sm:inline">Preview</span>
+              <span className="hidden sm:inline">Preview Hub</span>
             </a>
           </div>
         </div>

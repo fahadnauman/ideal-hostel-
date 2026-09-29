@@ -26,6 +26,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 6500,
     rentDueDate: 1,
     paymentStatus: "PAID",
+    emergencyContactName: "Suresh Kumar",
+    emergencyContactRelation: "Father",
+    emergencyContactPhone: "+91 98111 22334",
   },
   t2: {
     id: id(),
@@ -39,6 +42,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 7000,
     rentDueDate: 5,
     paymentStatus: "PAID",
+    emergencyContactName: "Dr. Sunita Reddy",
+    emergencyContactRelation: "Mother",
+    emergencyContactPhone: "+91 87000 99881",
   },
   t3: {
     id: id(),
@@ -52,6 +58,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 5500,
     rentDueDate: 10,
     paymentStatus: "OVERDUE",
+    emergencyContactName: "Rajeev Sharma",
+    emergencyContactRelation: "Brother",
+    emergencyContactPhone: "+91 76222 33445",
   },
   t4: {
     id: id(),
@@ -65,6 +74,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 6000,
     rentDueDate: 1,
     paymentStatus: "PAID",
+    emergencyContactName: "Mohan Nair",
+    emergencyContactRelation: "Father",
+    emergencyContactPhone: "+91 65999 88776",
   },
   t5: {
     id: id(),
@@ -78,6 +90,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 7500,
     rentDueDate: 1,
     paymentStatus: "UNPAID",
+    emergencyContactName: "Vinod Mehta",
+    emergencyContactRelation: "Father",
+    emergencyContactPhone: "+91 54111 44556",
   },
   t6: {
     id: id(),
@@ -91,6 +106,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 6800,
     rentDueDate: 1,
     paymentStatus: "PAID",
+    emergencyContactName: "Anita Joshi",
+    emergencyContactRelation: "Mother",
+    emergencyContactPhone: "+91 43000 11223",
   },
   t7: {
     id: id(),
@@ -104,6 +122,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 5800,
     rentDueDate: 15,
     paymentStatus: "PARTIAL",
+    emergencyContactName: "Kailash Verma",
+    emergencyContactRelation: "Uncle",
+    emergencyContactPhone: "+91 32999 00112",
   },
   t8: {
     id: id(),
@@ -117,6 +138,9 @@ const tenants: Record<string, Tenant> = {
     monthlyRent: 7200,
     rentDueDate: 1,
     paymentStatus: "PAID",
+    emergencyContactName: "Subhash Das",
+    emergencyContactRelation: "Father",
+    emergencyContactPhone: "+91 21444 77889",
   },
 };
 

@@ -69,6 +69,13 @@ export interface Tenant {
   monthlyRent: number;
   rentDueDate: number;
   paymentStatus: PaymentStatus;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+  emergencyContactRelation?: string | null;
+  roomNumber?: string;
+  bedNumber?: number;
+  floorName?: string;
+  status?: "ACTIVE" | "NOTICE" | "VACATED";
 }
 
 export type PaymentMode = "CASH" | "UPI" | "BANK_TRANSFER" | null;
@@ -84,6 +91,7 @@ export interface PaymentRecord {
   status: PaymentStatus;
   paidOn: string | null;
   paymentMode: PaymentMode;
+  transactionRef?: string | null;
 }
 
 /* ─── Meals ──────────────────────────────────────────────── */
@@ -99,4 +107,38 @@ export interface MealRecord {
   roomNumber: string;
   mealType: MealType;
   status: MealStatus;
+}
+
+/* ─── Owner Settings ─────────────────────────────────────── */
+
+export interface OwnerSettings {
+  propertyName: string;
+  ownerName: string;
+  ownerPhone: string;
+  ownerEmail?: string;
+  upiId: string;
+  merchantName: string;
+  qrImageUrl?: string | null;
+  paymentInstructions?: string;
+  breakfastWindow: string;
+  lunchWindow: string;
+  dinnerWindow: string;
+  updatedAt: string;
+}
+
+/* ─── Payment Proof Submission ───────────────────────────── */
+
+export interface PaymentSubmission {
+  id: string;
+  tenantId?: string;
+  tenantName: string;
+  roomNumber: string;
+  bedNumber?: number;
+  amount: number;
+  transactionId: string;
+  screenshotUrl?: string | null;
+  paymentMode: string;
+  notes?: string;
+  status: "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED";
+  submittedAt: string;
 }
