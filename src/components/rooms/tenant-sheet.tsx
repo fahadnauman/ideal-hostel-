@@ -21,6 +21,9 @@ import {
   Sun,
   Moon,
   Printer,
+  Trash2,
+  Edit,
+  AlertTriangle,
   ChevronRight,
   BookOpen,
   MapPin,
@@ -107,27 +110,62 @@ export default function TenantSheet({
     return null;
   }, [bed]);
 
-  // Set default rent on open add form
+  // Reset form data on open or bed change
   useEffect(() => {
-    if (isAddingTenant && room) {
-      setFormData(prev => ({
-        ...prev,
-        monthlyRent: room.roomType === "TRIPLE" ? "4000" : "4500",
-        advanceDeposit: room.roomType === "TRIPLE" ? "4000" : "4500",
-      }));
+    if (bed) {
+      setIsAddingTenant(false);
+      if (bed.tenant) {
+        setFormData({
+          name: bed.tenant.name || "",
+          phone: bed.tenant.phone || "",
+          dateOfBirth: bed.tenant.dateOfBirth || "",
+          whatsappNumber: bed.tenant.whatsappNumber || "",
+          permanentAddress: bed.tenant.permanentAddress || "",
+          courseName: bed.tenant.courseName || "",
+          branch: bed.tenant.branch || "",
+          yearOfStudy: bed.tenant.yearOfStudy || "",
+          parentName: bed.tenant.parentName || bed.tenant.emergencyContactName || "",
+          parentOccupation: bed.tenant.parentOccupation || "",
+          parentPhone: bed.tenant.parentPhone || bed.tenant.emergencyContactPhone || "",
+          paymentMethod: bed.tenant.paymentMethod || "UPI",
+          monthlyRent: bed.tenant.monthlyRent?.toString() || (room?.roomType === "TRIPLE" ? "4000" : "4500"),
+          advanceDeposit: bed.tenant.advanceDeposit?.toString() || (room?.roomType === "TRIPLE" ? "4000" : "4500"),
+          checkInDate: bed.tenant.checkInDate || new Date().toISOString().split("T")[0],
+        });
+      } else {
+        setFormData({
+          name: "",
+          phone: "",
+          dateOfBirth: "",
+          whatsappNumber: "",
+          permanentAddress: "",
+          courseName: "",
+          branch: "",
+          yearOfStudy: "",
+          parentName: "",
+          parentOccupation: "",
+          parentPhone: "",
+          paymentMethod: "UPI",
+          monthlyRent: room?.roomType === "TRIPLE" ? "4000" : "4500",
+          advanceDeposit: room?.roomType === "TRIPLE" ? "4000" : "4500",
+          checkInDate: new Date().toISOString().split("T")[0],
+        });
+      }
     }
-  }, [isAddingTenant, room]);
+  }, [bed, room?.roomType]);
 
   const handleAddTenant = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bed || !room) return;
     setLoading(true);
     try {
+      const isEditing = !!bed.tenant;
       const res = await fetch("/api/tenants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "add_tenant",
+          action: isEditing ? "update_tenant" : "add_tenant",
+          tenantId: bed.tenant?.id,
           name: formData.name,
           phone: formData.phone,
           roomNumber: room.roomNumber,
@@ -151,11 +189,39 @@ export default function TenantSheet({
         if (onUpdate) onUpdate();
         else window.location.reload();
       } else {
-        alert("Failed to add tenant");
+        alert(isEditing ? "Failed to update tenant" : "Failed to add tenant");
       }
     } catch (error) {
       console.error(error);
-      alert("Error adding tenant");
+      alert("Error saving tenant");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTerminateTenant = async () => {
+    if (!bed || !tenant) return;
+    if (!window.confirm("Are you sure you want to terminate this tenant's stay and vacate the bed?")) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/tenants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "terminate_tenant",
+          tenantId: tenant.id,
+          bedId: bed.id,
+        }),
+      });
+      if (res.ok) {
+        if (onUpdate) onUpdate();
+        else window.location.reload();
+      } else {
+        alert("Failed to terminate tenant");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error terminating tenant");
     } finally {
       setLoading(false);
     }
@@ -338,7 +404,7 @@ export default function TenantSheet({
               <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
                 <button type="button" onClick={() => setIsAddingTenant(false)} className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-default">Cancel</button>
                 <button type="submit" disabled={loading} className="px-5 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-default disabled:opacity-50">
-                  {loading ? "Saving..." : "Confirm & Assign Bed"}
+                  {loading ? "Saving..." : (bed.tenant ? "Save Details" : "Confirm & Assign Bed")}
                 </button>
               </div>
             </form>
@@ -403,6 +469,24 @@ export default function TenantSheet({
                     <MessageCircle className="w-4 h-4" />
                     <span>WhatsApp</span>
                   </a>
+                </div>
+
+                {/* Edit and Terminate Buttons */}
+                <div className="grid grid-cols-2 gap-2.5 mt-3">
+                  <button
+                    onClick={() => setIsAddingTenant(true)}
+                    className="flex items-center justify-center gap-2 py-3 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-200 transition-default shadow-xs"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleTerminateTenant}
+                    className="flex items-center justify-center gap-2 py-3 bg-rose-50 text-rose-700 font-bold text-sm rounded-xl hover:bg-rose-100 transition-default shadow-xs border border-rose-200"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Terminate Tenant
+                  </button>
                 </div>
               </section>
 
@@ -510,18 +594,6 @@ export default function TenantSheet({
                     No emergency contact on file.
                   </div>
                 )}
-              </section>
-
-              {/* Meal Preferences */}
-              <section className="space-y-3">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Today&apos;s Meal Preferences
-                </h3>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <MealToggle type="BREAKFAST" icon={Coffee} />
-                  <MealToggle type="LUNCH" icon={Sun} />
-                  <MealToggle type="DINNER" icon={Moon} />
-                </div>
               </section>
 
               {/* Payment History */}
@@ -678,22 +750,4 @@ function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
-
-function MealToggle({ type, icon: Icon }: { type: string, icon: React.ElementType }) {
-  const [optedIn, setOptedIn] = useState(true);
-  
-  return (
-    <button
-      onClick={() => setOptedIn(!optedIn)}
-      className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all shadow-xs min-h-[56px]
-        ${optedIn 
-          ? "bg-slate-900 border-slate-900 text-white hover:bg-slate-800" 
-          : "bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300"
-        }`}
-    >
-      <Icon className={`w-4 h-4 ${optedIn ? "text-white" : "text-slate-400"}`} />
-      <span className="capitalize">{type.toLowerCase()}</span>
-    </button>
-  );
 }

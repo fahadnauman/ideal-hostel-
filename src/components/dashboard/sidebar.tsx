@@ -26,7 +26,6 @@ const navigation = [
   { name: "Tenants", href: "/dashboard/tenants", icon: Users },
   { name: "Properties", href: "/dashboard/properties", icon: Building2 },
   { name: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
-  { name: "Meal Logs", href: "/dashboard/meals", icon: UtensilsCrossed },
   { name: "Task Board", href: "/dashboard/tasks", icon: ClipboardList },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
