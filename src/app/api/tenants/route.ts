@@ -163,14 +163,16 @@ export async function POST(request: NextRequest) {
       });
 
       // Map the tenant to the global bed state so it persists in the UI
+      // Use map to ensure we don't accidentally overwrite or mutate the whole array incorrectly
       for (const floor of Object.values(mockRoomsByFloor)) {
-        const room = floor.find(r => r.beds.some(b => b.id === bedId));
-        if (room) {
-          const bed = room.beds.find(b => b.id === bedId);
-          if (bed) {
-            bed.tenant = tenant;
-            bed.status = "OCCUPIED";
-          }
+        const roomIndex = floor.findIndex(r => r.beds.some(b => b.id === bedId));
+        if (roomIndex !== -1) {
+          const room = floor[roomIndex];
+          room.beds = room.beds.map(b => 
+            b.id === bedId 
+              ? { ...b, tenant, status: "OCCUPIED" } 
+              : b
+          );
           break;
         }
       }
