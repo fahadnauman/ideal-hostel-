@@ -373,8 +373,8 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
               <p
                 className={`text-sm font-bold leading-snug ${
                   task.status === "DONE"
-                    ? "line-through opacity-50"
-                    : "text-inherit"
+                    ? "line-through text-slate-400"
+                    : "text-slate-900"
                 }`}
               >
                 {task.title}
@@ -424,7 +424,7 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
               )}
 
               {/* Created */}
-              <span className="text-[10px] opacity-60 flex items-center gap-0.5">
+              <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
                 <Clock className="w-2.5 h-2.5" />
                 {timeAgo(task.createdAt)}
               </span>
@@ -437,14 +437,14 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
                 className="mt-2 text-left w-full cursor-pointer"
               >
                 <p
-                  className={`text-[11px] opacity-70 leading-relaxed ${
+                  className={`text-[11px] text-slate-500 leading-relaxed ${
                     expanded ? "" : "line-clamp-1"
                   }`}
                 >
                   {task.notes}
                 </p>
                 {task.notes.length > 60 && (
-                  <span className="text-[10px] opacity-50 font-semibold flex items-center gap-0.5 mt-0.5">
+                  <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-0.5 mt-0.5">
                     <ChevronDown
                       className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
                     />

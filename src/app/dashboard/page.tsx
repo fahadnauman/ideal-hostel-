@@ -270,7 +270,7 @@ export default function DashboardPage() {
             key={metric.label}
             href={metric.href}
             className="group relative bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5
-                       card-shadow card-shadow-hover transition-all duration-200 ease-in-out block"
+                       card-shadow-3d card-shadow-hover transition-all duration-200 ease-in-out block"
           >
             {/* Top row */}
             <div className="flex items-start justify-between mb-3 sm:mb-4">
