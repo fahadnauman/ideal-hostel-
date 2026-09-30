@@ -144,13 +144,43 @@ export async function POST(request: NextRequest) {
           parentName, parentOccupation, parentPhone, paymentMethod 
         } = tData;
 
-        if (!bedId) continue;
+        let targetBedId = bedId;
+
+        // If no bedId is provided, try to find an available bed in the specified roomNumber
+        if (!targetBedId && roomNumber) {
+          for (const floorRooms of Object.values(mockRoomsByFloor)) {
+            const room = floorRooms.find(r => r.roomNumber.toUpperCase() === roomNumber.toUpperCase());
+            if (room) {
+              const availableBed = room.beds.find(b => b.status === "AVAILABLE");
+              if (availableBed) {
+                targetBedId = availableBed.id;
+              }
+            }
+            if (targetBedId) break;
+          }
+        }
+
+        // If still no bedId, find ANY available bed
+        if (!targetBedId) {
+          for (const floorRooms of Object.values(mockRoomsByFloor)) {
+            for (const room of floorRooms) {
+              const availableBed = room.beds.find(b => b.status === "AVAILABLE");
+              if (availableBed) {
+                targetBedId = availableBed.id;
+                break;
+              }
+            }
+            if (targetBedId) break;
+          }
+        }
+
+        if (!targetBedId) continue; // Skip if hostel is completely full
 
         const tenant = addTenant({
           name: name || "Unknown",
           phone: phone || "",
           roomNumber: roomNumber || "",
-          bedId,
+          bedId: targetBedId,
           monthlyRent: Number(monthlyRent) || 0,
           advanceDeposit: Number(advanceDeposit) || 0,
           checkInDate: checkInDate || new Date().toISOString().split("T")[0],
@@ -178,13 +208,13 @@ export async function POST(request: NextRequest) {
 
         // Map the tenant to the global bed state
         for (const [floorKey, floorRooms] of Object.entries(mockRoomsByFloor)) {
-          if (floorRooms.some(r => r.beds.some(b => b.id === bedId))) {
+          if (floorRooms.some(r => r.beds.some(b => b.id === targetBedId))) {
             mockRoomsByFloor[floorKey] = floorRooms.map(room => {
-              if (room.beds.some(b => b.id === bedId)) {
+              if (room.beds.some(b => b.id === targetBedId)) {
                 return {
                   ...room,
                   beds: room.beds.map(b => 
-                    b.id === bedId 
+                    b.id === targetBedId 
                       ? { ...b, tenant, status: "OCCUPIED" } 
                       : b
                   )
