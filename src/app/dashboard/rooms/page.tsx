@@ -240,6 +240,10 @@ export default function RoomsPage() {
         bed={selectedBed}
         paymentHistory={mockPaymentHistory}
         onClose={handleCloseSheet}
+        onUpdate={() => {
+          setRefreshKey(k => k + 1);
+          handleCloseSheet();
+        }}
       />
 
       {/* ── Room QR Code Placard Modal ─────────────────── */}
