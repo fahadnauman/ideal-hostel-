@@ -2,73 +2,7 @@ import type { MaintenanceTask, MaintenanceStatus, MaintenanceCategory } from "@/
 
 /* ─── Initial Seed Maintenance Tasks ────────────────────────── */
 
-const initialSeedTasks: MaintenanceTask[] = [
-  {
-    id: "MT-1001",
-    roomId: "floor-1-room-101",
-    roomNumber: "101",
-    category: "PLUMBING",
-    description: "Washroom basin tap dripping continuously and floor drain is slightly clogged.",
-    photoUrl: null,
-    status: "PENDING",
-    tenantName: "Divya Joshi",
-    tenantPhone: "+91 43210 98765",
-    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 mins ago
-    updatedAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "MT-1002",
-    roomId: "floor-g-room-G02",
-    roomNumber: "G02",
-    category: "AC_VENTILATION",
-    description: "AC unit blowing room temperature air instead of cooling; filter needs cleaning.",
-    photoUrl: null,
-    status: "PENDING",
-    tenantName: "Sneha Reddy",
-    tenantPhone: "+91 87654 32109",
-    createdAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hrs ago
-    updatedAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "MT-1003",
-    roomId: "floor-2-room-203",
-    roomNumber: "203",
-    category: "ELECTRICAL",
-    description: "Bed 1 study lamp plug socket is sparking intermittently when laptop is connected.",
-    photoUrl: null,
-    status: "IN_PROGRESS",
-    tenantName: "Rohit Verma",
-    tenantPhone: "+91 32109 87654",
-    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hrs ago
-    updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "MT-1004",
-    roomId: "floor-g-room-G01",
-    roomNumber: "G01",
-    category: "CARPENTRY",
-    description: "Wardrobe magnetic latch broken; door remains open.",
-    photoUrl: null,
-    status: "RESOLVED",
-    tenantName: "Ravi Kumar",
-    tenantPhone: "+91 98765 43210",
-    createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(), // yesterday
-    updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "MT-1005",
-    roomId: "floor-1-room-103",
-    roomNumber: "103",
-    category: "CLEANING",
-    description: "Balcony window sliding mesh requires deep wash and mosquito repellent net replacement.",
-    photoUrl: null,
-    status: "RESOLVED",
-    tenantName: null,
-    tenantPhone: null,
-    createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-  },
-];
+const initialSeedTasks: MaintenanceTask[] = [];
 
 /* ─── Global State for Development / Serverless Persistence ── */
 

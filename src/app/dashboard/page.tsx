@@ -245,7 +245,7 @@ export default function DashboardPage() {
             <span>Owner Handoff Active</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Sunrise PG Hostel
+            Ideal Hostel
           </h1>
           <p className="text-sm text-slate-600">
             Live occupancy, room grid, dues collection, and property overview.

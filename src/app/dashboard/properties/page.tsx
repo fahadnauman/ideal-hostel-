@@ -18,11 +18,11 @@ import type { OwnerSettings } from "@/types";
 
 export default function PropertiesPage() {
   const [settings, setSettings] = useState<OwnerSettings>({
-    propertyName: "Sunrise PG Hostel",
+    propertyName: "Ideal Hostel",
     ownerName: "Fahad Nauman",
     ownerPhone: "+91 98765 00000",
-    upiId: "sunrisepg@okhdfcbank",
-    merchantName: "Sunrise PG Accommodations",
+    upiId: "idealhostel@okhdfcbank",
+    merchantName: "Ideal Enterprises",
     qrImageUrl: null,
     breakfastWindow: "07:30 AM - 09:30 AM",
     lunchWindow: "01:00 PM - 03:00 PM",

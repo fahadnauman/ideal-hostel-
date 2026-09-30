@@ -24,12 +24,12 @@ import type { OwnerSettings } from "@/types";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<OwnerSettings>({
-    propertyName: "Sunrise PG Hostel",
+    propertyName: "Ideal Hostel",
     ownerName: "Fahad Nauman",
     ownerPhone: "+91 98765 00000",
-    ownerEmail: "owner@sunrisepg.com",
-    upiId: "sunrisepg@okhdfcbank",
-    merchantName: "Sunrise PG Accommodations",
+    ownerEmail: "owner@idealhostel.com",
+    upiId: "idealhostel@okhdfcbank",
+    merchantName: "Ideal Enterprises",
     qrImageUrl: null,
     paymentInstructions:
       "Please mention your Room Number & Month in UPI remarks. Upload screenshot or enter your 12-digit UTR number below for immediate receipt clearance.",
@@ -124,7 +124,7 @@ export default function SettingsPage() {
 
   // Generate UPI URI for standard dynamic QR
   const upiPayUrl = `upi://pay?pa=${encodeURIComponent(
-    settings.upiId || "sunrisepg@okhdfcbank"
+    settings.upiId || "idealhostel@okhdfcbank"
   )}&pn=${encodeURIComponent(
     settings.merchantName || settings.propertyName
   )}&cu=INR`;
@@ -223,7 +223,7 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       setSettings({ ...settings, upiId: e.target.value.trim() })
                     }
-                    placeholder="sunrisepg@okhdfcbank, mobile@upi, etc."
+                    placeholder="idealhostel@okhdfcbank, mobile@upi, etc."
                     className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-slate-900 focus:bg-white rounded-xl pl-10 pr-3.5 py-2.5 text-sm font-extrabold text-slate-900 font-mono focus-ring transition-default"
                   />
                 </div>
@@ -244,7 +244,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setSettings({ ...settings, merchantName: e.target.value })
                   }
-                  placeholder="Sunrise PG Accommodations"
+                  placeholder="Ideal Enterprises"
                   className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-slate-900 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus-ring transition-default"
                 />
               </div>

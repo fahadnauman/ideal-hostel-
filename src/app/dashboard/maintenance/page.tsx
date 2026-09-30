@@ -662,7 +662,7 @@ export default function OwnerMaintenancePage() {
       {qrModalRoom && (
         <RoomQrModal
           room={qrModalRoom}
-          propertyTitle="Sunrise PG Hostel"
+          propertyTitle="Ideal Hostel"
           isOpen={!!qrModalRoom}
           onClose={() => setQrModalRoom(null)}
         />

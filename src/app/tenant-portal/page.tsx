@@ -180,11 +180,11 @@ function TenantPortalContent() {
 
   // Owner Settings
   const [settings, setSettings] = useState<OwnerSettings>({
-    propertyName: "Sunrise PG Hostel",
+    propertyName: "Ideal Hostel",
     ownerName: "Fahad Nauman",
     ownerPhone: "+91 98765 00000",
-    upiId: "sunrisepg@okhdfcbank",
-    merchantName: "Sunrise PG Accommodations",
+    upiId: "idealhostel@okhdfcbank",
+    merchantName: "Ideal Enterprises",
     qrImageUrl: null,
     paymentInstructions:
       "Please mention your Room Number & Month in UPI remarks. Upload screenshot or enter your 12-digit UTR number below for immediate receipt clearance.",
@@ -201,13 +201,13 @@ function TenantPortalContent() {
     paymentStatus: string;
   }>({
     name: "Room Resident",
-    monthlyRent: 6500,
+    monthlyRent: 4500,
     paymentStatus: "UNPAID",
   });
 
   // Pay Rent State
   const [copiedUpi, setCopiedUpi] = useState(false);
-  const [payAmount, setPayAmount] = useState<number>(6500);
+  const [payAmount, setPayAmount] = useState<number>(4500);
   const [transactionId, setTransactionId] = useState("");
   const [tenantNameInput, setTenantNameInput] = useState("");
   const [paymentScreenshot, setPaymentScreenshot] = useState<string | null>(null);
@@ -270,10 +270,10 @@ function TenantPortalContent() {
             const firstT = tData.tenants[0];
             setTenantInfo({
               name: firstT.name,
-              monthlyRent: firstT.monthlyRent || 6500,
+              monthlyRent: firstT.monthlyRent || 4500,
               paymentStatus: firstT.paymentStatus || "UNPAID",
             });
-            setPayAmount(firstT.monthlyRent || 6500);
+            setPayAmount(firstT.monthlyRent || 4500);
             setTenantNameInput(firstT.name);
             setMaintName(firstT.name);
             setMaintPhone(firstT.phone);
@@ -1234,7 +1234,7 @@ function TenantPortalContent() {
 
         {/* ── Footer ── */}
         <div className="p-3 bg-white border-t border-slate-200 text-center text-[10px] text-slate-400 font-medium">
-          PGHQ Standard · Sunrise PG Hostel Door Portal · 24/7 Desk: {settings.ownerPhone}
+          PGHQ Standard · Ideal Hostel Door Portal · 24/7 Desk: {settings.ownerPhone}
         </div>
       </div>
 

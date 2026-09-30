@@ -16,68 +16,7 @@ export interface OwnerTask {
   updatedAt: string;
 }
 
-const initialSeedTasks: OwnerTask[] = [
-  {
-    id: "OT-1001",
-    title: "Collect rent from Room 102 tenant",
-    notes: "Amit has promised payment by end of month. Follow up if not received by 5th.",
-    priority: "HIGH",
-    status: "PENDING",
-    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    category: "Finance",
-    completedAt: null,
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "OT-1002",
-    title: "Call electrician for Room 203 sparking socket",
-    notes: "Rohit reported socket sparking — urgent safety concern. Contact Sharma Electricals.",
-    priority: "HIGH",
-    status: "IN_PROGRESS",
-    dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    category: "Maintenance",
-    completedAt: null,
-    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "OT-1003",
-    title: "Renew water tank AMC contract",
-    notes: "Contract expires next month. Get quotes from 2 vendors before renewing.",
-    priority: "MEDIUM",
-    status: "PENDING",
-    dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    category: "Admin",
-    completedAt: null,
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "OT-1004",
-    title: "Deep clean common kitchen — before weekend",
-    notes: "Arrange cleaning crew. Check if supplies (phenyl, scrubs) are in stock.",
-    priority: "MEDIUM",
-    status: "PENDING",
-    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    category: "Housekeeping",
-    completedAt: null,
-    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "OT-1005",
-    title: "Update PG directory brochure with new photos",
-    notes: "Took new room photos last week. Ask designer to update listing on NoBroker & MagicBricks.",
-    priority: "LOW",
-    status: "DONE",
-    dueDate: null,
-    category: "Marketing",
-    completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+const initialSeedTasks: OwnerTask[] = [];
 
 /* ─── Global persistence (dev / serverless) ─────────────────── */
 

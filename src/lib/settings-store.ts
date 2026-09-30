@@ -3,12 +3,12 @@ import type { OwnerSettings } from "@/types";
 /* ─── Default Owner & Property Settings ──────────────────────── */
 
 const defaultSettings: OwnerSettings = {
-  propertyName: "Sunrise PG Hostel",
+  propertyName: "Ideal Hostel",
   ownerName: "Fahad Nauman",
   ownerPhone: "+91 98765 00000",
-  ownerEmail: "owner@sunrisepg.com",
-  upiId: "sunrisepg@okhdfcbank",
-  merchantName: "Sunrise PG Accommodations",
+  ownerEmail: "owner@idealhostel.com",
+  upiId: "idealhostel@okhdfcbank",
+  merchantName: "Ideal Enterprises",
   qrImageUrl: null,
   paymentInstructions: "Please mention your Room Number & Month in UPI remarks. Upload screenshot or enter your 12-digit UTR number below for immediate receipt clearance.",
   breakfastWindow: "07:30 AM - 09:30 AM",

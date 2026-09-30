@@ -87,14 +87,14 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [activeProperty, setActiveProperty] = useState("Sunrise PG - Branch 1");
+  const [activeProperty, setActiveProperty] = useState("Ideal Hostel");
   const [bellOpen, setBellOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [chimePlayed, setChimePlayed] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
   const properties = [
-    "Sunrise PG - Branch 1",
+    "Ideal Hostel",
     "Greenwood Hostel - Branch 2",
     "Elite Residences - Branch 3",
   ];

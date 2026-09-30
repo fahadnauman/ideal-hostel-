@@ -24,7 +24,7 @@ interface RoomQrModalProps {
 
 export default function RoomQrModal({
   room,
-  propertyTitle = "Sunrise PG Hostel",
+  propertyTitle = "Ideal Hostel",
   isOpen,
   onClose,
 }: RoomQrModalProps) {
