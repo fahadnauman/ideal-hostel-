@@ -192,6 +192,101 @@ function PendingMaintenanceWidget() {
   );
 }
 
+/* ─── Task Widget ───────────────────────────────────────── */
+
+function TaskWidget() {
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/tasks");
+        if (res.ok) {
+          const data = await res.json();
+          const pending = (data.tasks || []).filter(
+            (t: any) => t.status === "PENDING" || t.status === "IN_PROGRESS"
+          );
+          setTasks(pending.slice(0, 5));
+        }
+      } catch {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center">
+            <ClipboardList className="w-5 h-5 text-purple-700" />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-slate-900">
+              Task Board
+            </h2>
+            <p className="text-xs text-slate-500">Your to-do list</p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard/tasks"
+          className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
+        >
+          View all <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+          <p className="text-sm font-bold text-slate-800">All clear!</p>
+          <p className="text-xs text-slate-500 mt-0.5">No pending tasks on your board.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {tasks.map((t) => (
+            <Link
+              key={t.id}
+              href="/dashboard/tasks"
+              className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 hover:bg-slate-50 -mx-1 px-1 rounded-xl transition-colors"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-bold text-slate-900 truncate">
+                    {t.title}
+                  </p>
+                  <span
+                    className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      t.priority === "HIGH"
+                        ? "bg-rose-50 text-rose-700 border-rose-200"
+                        : "bg-slate-100 text-slate-700 border-slate-200"
+                    }`}
+                  >
+                    {t.priority}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                  {t.notes || "No notes"}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default function DashboardPage() {
@@ -395,8 +490,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Three-Column Bottom Section ──────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      {/* ── Four-Column Bottom Section ──────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         {/* Quick Actions */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 card-shadow space-y-4">
           <div className="flex items-center justify-between">
@@ -469,54 +564,16 @@ export default function DashboardPage() {
           </div>
 
           <div className="divide-y divide-slate-100">
-            {[
-              {
-                text: "Ravi Kumar checked in (Room G01, Bed 1)",
-                time: "2 hours ago",
-                badge: "Check-in",
-                badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-200",
-              },
-              {
-                text: "Rent collected ₹6,500 from Sneha Reddy",
-                time: "5 hours ago",
-                badge: "Payment",
-                badgeColor: "bg-blue-50 text-blue-800 border-blue-200",
-              },
-              {
-                text: "Plumbing repair resolved in Room 101",
-                time: "Yesterday",
-                badge: "Resolved",
-                badgeColor: "bg-slate-100 text-slate-800 border-slate-200",
-              },
-              {
-                text: "Rent reminder sent to Amit Sharma (₹5,500 due)",
-                time: "2 days ago",
-                badge: "Due Alert",
-                badgeColor: "bg-rose-50 text-rose-800 border-rose-200",
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="py-3 flex items-start justify-between gap-3 first:pt-0 last:pb-0"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${item.badgeColor}`}
-                    >
-                      {item.badge}
-                    </span>
-                    <span className="text-xs text-slate-400 sm:hidden">{item.time}</span>
-                  </div>
-                  <p className="text-sm font-medium text-slate-800">{item.text}</p>
-                </div>
-                <span className="text-xs font-medium text-slate-400 whitespace-nowrap hidden sm:inline-block">
-                  {item.time}
-                </span>
-              </div>
-            ))}
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+              <p className="text-sm font-bold text-slate-800">All caught up!</p>
+              <p className="text-xs text-slate-500 mt-0.5">No recent activity.</p>
+            </div>
           </div>
         </div>
+
+        {/* Task Widget */}
+        <TaskWidget />
       </div>
     </div>
   );

@@ -106,22 +106,22 @@ export default function PropertiesPage() {
               Total Floors
             </span>
             <p className="text-2xl font-black text-slate-900">3 Floors</p>
-            <span className="text-[11px] text-slate-400">Ground, 1st &amp; 2nd</span>
+            <span className="text-[11px] text-slate-400">Basement, 1st &amp; 2nd</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Total Capacity
             </span>
-            <p className="text-2xl font-black text-slate-900">120 Beds</p>
-            <span className="text-[11px] text-emerald-600 font-semibold">81.6% Occupancy</span>
+            <p className="text-2xl font-black text-slate-900">39 Beds</p>
+            <span className="text-[11px] text-emerald-600 font-semibold">0% Occupancy</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Active Residents
             </span>
-            <p className="text-2xl font-black text-slate-900">98 Tenants</p>
+            <p className="text-2xl font-black text-slate-900">0 Tenants</p>
             <Link href="/dashboard/tenants" className="text-[11px] text-blue-600 font-bold hover:underline">
               View Directory &rarr;
             </Link>

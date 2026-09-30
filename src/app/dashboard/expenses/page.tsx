@@ -12,14 +12,7 @@ export default function ExpensesDashboard() {
     .reduce((sum, p) => sum + p.amount, 0);
 
   // Mock Expenses
-  const expenses = [
-    { id: "e1", category: "Electricity Bill", amount: 4500, date: "2026-09-05", status: "PAID" },
-    { id: "e2", category: "Water Supply", amount: 1200, date: "2026-09-08", status: "PAID" },
-    { id: "e3", category: "Staff Wages (Cook & Cleaning)", amount: 12000, date: "2026-09-01", status: "PAID" },
-    { id: "e4", category: "Groceries & Mess Supplies", amount: 8500, date: "2026-09-12", status: "PAID" },
-    { id: "e5", category: "Internet / Wi-Fi", amount: 1499, date: "2026-09-02", status: "PAID" },
-    { id: "e6", category: "Plumbing Repair", amount: 850, date: "2026-09-15", status: "UNPAID" },
-  ];
+  const expenses: { id: string; category: string; amount: number; date: string; status: string }[] = [];
 
   const totalExpenses = expenses.filter(e => e.status === "PAID").reduce((sum, e) => sum + e.amount, 0);
   const pendingExpenses = expenses.filter(e => e.status === "UNPAID").reduce((sum, e) => sum + e.amount, 0);
