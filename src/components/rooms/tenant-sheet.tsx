@@ -38,7 +38,7 @@ interface TenantSheetProps {
   bed: Bed | null;
   paymentHistory: PaymentRecord[];
   onClose: () => void;
-  onUpdate?: () => void;
+  onUpdate?: (updatedTenant?: any) => void;
 }
 
 const paymentStatusConfig: Record<
@@ -186,13 +186,16 @@ export default function TenantSheet({
         }),
       });
       if (res.ok) {
-        if (onUpdate) onUpdate();
+        const data = await res.json();
+        if (onUpdate) onUpdate(data.tenant);
         else window.location.reload();
       } else {
-        alert(isEditing ? "Failed to update tenant" : "Failed to add tenant");
+        const errData = await res.json().catch(() => ({}));
+        console.error("API Error:", errData);
+        alert(isEditing ? `Failed to update tenant: ${errData.error || "Unknown error"}` : `Failed to add tenant: ${errData.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error saving tenant:", error);
       alert("Error saving tenant");
     } finally {
       setLoading(false);

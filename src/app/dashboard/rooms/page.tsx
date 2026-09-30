@@ -240,9 +240,13 @@ export default function RoomsPage() {
         bed={selectedBed}
         paymentHistory={mockPaymentHistory}
         onClose={handleCloseSheet}
-        onUpdate={() => {
+        onUpdate={(updatedTenant?: any) => {
           setRefreshKey(k => k + 1);
-          handleCloseSheet();
+          if (updatedTenant) {
+            setSelectedBed(prev => prev ? { ...prev, tenant: updatedTenant, status: "OCCUPIED" } : null);
+          } else {
+            handleCloseSheet();
+          }
         }}
       />
 
