@@ -127,6 +127,80 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action } = body;
 
+    // Bulk import tenants
+    if (action === "bulk_import") {
+      const { tenants } = body; // Array of tenant objects
+      if (!Array.isArray(tenants)) {
+        return NextResponse.json({ success: false, error: "Invalid payload, expected array of tenants" }, { status: 400 });
+      }
+
+      const importedTenants = [];
+      let successCount = 0;
+
+      for (const tData of tenants) {
+        const { 
+          name, phone, roomNumber, bedId, monthlyRent, advanceDeposit, checkInDate,
+          dateOfBirth, whatsappNumber, permanentAddress, courseName, branch, yearOfStudy,
+          parentName, parentOccupation, parentPhone, paymentMethod 
+        } = tData;
+
+        if (!bedId) continue;
+
+        const tenant = addTenant({
+          name: name || "Unknown",
+          phone: phone || "",
+          roomNumber: roomNumber || "",
+          bedId,
+          monthlyRent: Number(monthlyRent) || 0,
+          advanceDeposit: Number(advanceDeposit) || 0,
+          checkInDate: checkInDate || new Date().toISOString().split("T")[0],
+          dateOfBirth: dateOfBirth || "",
+          whatsappNumber: whatsappNumber || "",
+          permanentAddress: permanentAddress || "",
+          courseName: courseName || "",
+          branch: branch || "",
+          yearOfStudy: yearOfStudy || "",
+          parentName: parentName || "",
+          parentOccupation: parentOccupation || "",
+          parentPhone: parentPhone || "",
+          paymentMethod: paymentMethod || "UPI",
+          paymentStatus: "PAID",
+          status: "ACTIVE",
+          rentDueDate: 5,
+          email: null,
+          leaseEndDate: null,
+          emergencyContactName: parentName || "",
+          emergencyContactPhone: parentPhone || "",
+          emergencyContactRelation: parentName ? "Parent" : "",
+        });
+
+        importedTenants.push(tenant);
+
+        // Map the tenant to the global bed state
+        for (const [floorKey, floorRooms] of Object.entries(mockRoomsByFloor)) {
+          if (floorRooms.some(r => r.beds.some(b => b.id === bedId))) {
+            mockRoomsByFloor[floorKey] = floorRooms.map(room => {
+              if (room.beds.some(b => b.id === bedId)) {
+                return {
+                  ...room,
+                  beds: room.beds.map(b => 
+                    b.id === bedId 
+                      ? { ...b, tenant, status: "OCCUPIED" } 
+                      : b
+                  )
+                };
+              }
+              return room;
+            });
+            break;
+          }
+        }
+        successCount++;
+      }
+
+      return NextResponse.json({ success: true, count: successCount, tenants: importedTenants });
+    }
+
     // Add a new tenant
     if (action === "add_tenant") {
       const { 
