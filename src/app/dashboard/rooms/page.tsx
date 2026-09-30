@@ -35,7 +35,7 @@ export default function RoomsPage() {
       }
     }
     fetchRooms();
-  }, []);
+  }, [refreshKey]);
 
   const rooms = fetchedRooms[activeFloorId] ?? [];
   const activeFloor = mockFloors.find((f) => f.id === activeFloorId);
@@ -254,9 +254,9 @@ export default function RoomsPage() {
         room={selectedEditRoom}
         isOpen={!!selectedEditRoom}
         onClose={() => setSelectedEditRoom(null)}
-        onUpdate={() => {
-          setSelectedEditRoom(null);
-          window.location.reload();
+        onUpdate={(updatedRoom) => {
+          setSelectedEditRoom(updatedRoom);
+          setRefreshKey(k => k + 1);
         }}
       />
     </div>

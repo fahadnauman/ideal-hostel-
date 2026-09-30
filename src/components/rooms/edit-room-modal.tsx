@@ -8,7 +8,7 @@ interface EditRoomModalProps {
   room: Room | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: () => void;
+  onUpdate: (updatedRoom: Room) => void;
 }
 
 export default function EditRoomModal({ room, isOpen, onClose, onUpdate }: EditRoomModalProps) {
@@ -38,7 +38,8 @@ export default function EditRoomModal({ room, isOpen, onClose, onUpdate }: EditR
         }),
       });
       if (res.ok) {
-        onUpdate();
+        const data = await res.json();
+        onUpdate(data.room);
       } else {
         alert("Failed to update room name.");
       }
@@ -64,7 +65,8 @@ export default function EditRoomModal({ room, isOpen, onClose, onUpdate }: EditR
         }),
       });
       if (res.ok) {
-        onUpdate();
+        const data = await res.json();
+        onUpdate(data.room);
       } else {
         alert("Failed to add bed.");
       }
@@ -97,7 +99,8 @@ export default function EditRoomModal({ room, isOpen, onClose, onUpdate }: EditR
         }),
       });
       if (res.ok) {
-        onUpdate();
+        const data = await res.json();
+        onUpdate(data.room);
       } else {
         alert("Failed to remove bed. Is it occupied?");
       }
