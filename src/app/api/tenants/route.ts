@@ -128,7 +128,11 @@ export async function POST(request: NextRequest) {
 
     // Add a new tenant
     if (action === "add_tenant") {
-      const { name, phone, roomNumber, bedId, monthlyRent, advanceDeposit, checkInDate } = body;
+      const { 
+        name, phone, roomNumber, bedId, monthlyRent, advanceDeposit, checkInDate,
+        dateOfBirth, whatsappNumber, permanentAddress, courseName, branch, yearOfStudy,
+        parentName, parentOccupation, parentPhone, paymentMethod 
+      } = body;
       const tenant = addTenant({
         name,
         phone,
@@ -137,14 +141,24 @@ export async function POST(request: NextRequest) {
         monthlyRent: Number(monthlyRent),
         advanceDeposit: Number(advanceDeposit),
         checkInDate,
+        dateOfBirth,
+        whatsappNumber,
+        permanentAddress,
+        courseName,
+        branch,
+        yearOfStudy,
+        parentName,
+        parentOccupation,
+        parentPhone,
+        paymentMethod,
         paymentStatus: "PAID",
         status: "ACTIVE",
         rentDueDate: 5,
         email: null,
         leaseEndDate: null,
-        emergencyContactName: "",
-        emergencyContactPhone: "",
-        emergencyContactRelation: "",
+        emergencyContactName: parentName || "",
+        emergencyContactPhone: parentPhone || "",
+        emergencyContactRelation: parentName ? "Parent" : "",
       });
       return NextResponse.json({ success: true, tenant });
     }

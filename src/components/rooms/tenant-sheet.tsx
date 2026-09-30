@@ -22,6 +22,10 @@ import {
   Moon,
   Printer,
   ChevronRight,
+  BookOpen,
+  MapPin,
+  CreditCard,
+  GraduationCap
 } from "lucide-react";
 import RecordPaymentModal from "@/components/finance/record-payment-modal";
 import { Room } from "@/types";
@@ -74,6 +78,16 @@ export default function TenantSheet({
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    dateOfBirth: "",
+    whatsappNumber: "",
+    permanentAddress: "",
+    courseName: "",
+    branch: "",
+    yearOfStudy: "",
+    parentName: "",
+    parentOccupation: "",
+    parentPhone: "",
+    paymentMethod: "UPI" as "CASH" | "UPI",
     monthlyRent: "",
     advanceDeposit: "",
     checkInDate: new Date().toISOString().split("T")[0],
@@ -119,6 +133,16 @@ export default function TenantSheet({
           monthlyRent: formData.monthlyRent,
           advanceDeposit: formData.advanceDeposit,
           checkInDate: formData.checkInDate,
+          dateOfBirth: formData.dateOfBirth,
+          whatsappNumber: formData.whatsappNumber,
+          permanentAddress: formData.permanentAddress,
+          courseName: formData.courseName,
+          branch: formData.branch,
+          yearOfStudy: formData.yearOfStudy,
+          parentName: formData.parentName,
+          parentOccupation: formData.parentOccupation,
+          parentPhone: formData.parentPhone,
+          paymentMethod: formData.paymentMethod,
         }),
       });
       if (res.ok) {
@@ -222,20 +246,81 @@ export default function TenantSheet({
         <div className="px-5 sm:px-6 py-5 space-y-6 pb-20 sm:pb-8">
           {isAddingTenant ? (
             <form onSubmit={handleAddTenant} className="space-y-4">
-              <div className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-900">New Tenant Details</h3>
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Personal Details</h3>
                 
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 block mb-1">Full Name</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Enter name" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Full Name</label>
+                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Enter name" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Date of Birth</label>
+                    <input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 block mb-1">Phone Number</label>
-                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 pt-2">Contact Info</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Phone Number</label>
+                    <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">WhatsApp Number</label>
+                    <input type="tel" value={formData.whatsappNumber} onChange={e => setFormData({...formData, whatsappNumber: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="WhatsApp number" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Permanent Address</label>
+                    <textarea rows={2} value={formData.permanentAddress} onChange={e => setFormData({...formData, permanentAddress: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Full permanent address" />
+                  </div>
                 </div>
 
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 pt-2">Academic Details (CET)</h3>
                 <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Course Name</label>
+                    <input type="text" value={formData.courseName} onChange={e => setFormData({...formData, courseName: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. B.Tech, B.Sc" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Branch</label>
+                    <input type="text" value={formData.branch} onChange={e => setFormData({...formData, branch: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. Computer Science" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Year of Study</label>
+                    <input type="text" value={formData.yearOfStudy} onChange={e => setFormData({...formData, yearOfStudy: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. 1st Year" />
+                  </div>
+                </div>
+
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 pt-2">Guardian / Parents Details</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Parent/Guardian Name</label>
+                    <input type="text" value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Parent name" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Parent Phone</label>
+                    <input type="tel" value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Occupation (Optional)</label>
+                    <input type="text" value={formData.parentOccupation} onChange={e => setFormData({...formData, parentOccupation: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Occupation" />
+                  </div>
+                </div>
+
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 pt-2">Financials & Admission</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Check-in Date</label>
+                    <input required type="date" value={formData.checkInDate} onChange={e => setFormData({...formData, checkInDate: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Payment Method</label>
+                    <select required value={formData.paymentMethod} onChange={e => setFormData({...formData, paymentMethod: e.target.value as "CASH" | "UPI"})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                      <option value="CASH">Cash</option>
+                      <option value="UPI">GPay / UPI</option>
+                    </select>
+                  </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Monthly Rent</label>
                     <input required type="number" value={formData.monthlyRent} onChange={e => setFormData({...formData, monthlyRent: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
@@ -244,11 +329,6 @@ export default function TenantSheet({
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Security Deposit</label>
                     <input required type="number" value={formData.advanceDeposit} onChange={e => setFormData({...formData, advanceDeposit: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
                   </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 block mb-1">Check-in Date</label>
-                  <input required type="date" value={formData.checkInDate} onChange={e => setFormData({...formData, checkInDate: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
                 </div>
               </div>
 
@@ -351,6 +431,11 @@ export default function TenantSheet({
                     value={`${ordinal(tenant.rentDueDate)} of month`}
                   />
                   <DetailCard
+                    icon={CreditCard}
+                    label="Payment Method"
+                    value={tenant.paymentMethod === "UPI" ? "GPay / UPI" : tenant.paymentMethod === "CASH" ? "Cash" : "Not Set"}
+                  />
+                  <DetailCard
                     icon={CalendarClock}
                     label="Lease Expiration"
                     value={
@@ -358,15 +443,41 @@ export default function TenantSheet({
                         ? formatDate(tenant.leaseEndDate)
                         : "Open Agreement"
                     }
-                    className="col-span-2"
                   />
                 </div>
               </section>
 
-              {/* Emergency Contact */}
+              {/* Academic & Contact Details */}
+              {(tenant.courseName || tenant.permanentAddress) && (
+                <section className="space-y-3">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Extended Profile
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {tenant.courseName && (
+                      <DetailCard
+                        icon={GraduationCap}
+                        label="Course Details"
+                        value={`${tenant.courseName}${tenant.branch ? ` - ${tenant.branch}` : ""}${tenant.yearOfStudy ? ` (${tenant.yearOfStudy})` : ""}`}
+                        className="col-span-2"
+                      />
+                    )}
+                    {tenant.permanentAddress && (
+                      <DetailCard
+                        icon={MapPin}
+                        label="Permanent Address"
+                        value={tenant.permanentAddress}
+                        className="col-span-2"
+                      />
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Emergency Contact & Guardians */}
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Emergency Contact
+                  Emergency Contact / Guardian
                 </h3>
                 {tenant.emergencyContactName ? (
                   <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
