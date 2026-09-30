@@ -9,13 +9,16 @@ import StatusLegend from "@/components/rooms/status-legend";
 import TenantSheet from "@/components/rooms/tenant-sheet";
 import BedIndicator from "@/components/rooms/bed-indicator";
 import RoomQrModal from "@/components/rooms/room-qr-modal";
-import { Layers, LayoutGrid, Grid2X2, QrCode } from "lucide-react";
+import EditRoomModal from "@/components/rooms/edit-room-modal";
+import { Layers, LayoutGrid, Grid2X2, QrCode, Settings2 } from "lucide-react";
 
 export default function RoomsPage() {
   const [activeFloorId, setActiveFloorId] = useState(mockFloors[0].id);
   const [selectedBed, setSelectedBed] = useState<Bed | null>(null);
   const [selectedQrRoom, setSelectedQrRoom] = useState<Room | null>(null);
+  const [selectedEditRoom, setSelectedEditRoom] = useState<Room | null>(null);
   const [viewMode, setViewMode] = useState<"cards" | "matrix">("cards");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const rooms = mockRoomsByFloor[activeFloorId] ?? [];
   const activeFloor = mockFloors.find((f) => f.id === activeFloorId);
@@ -141,6 +144,7 @@ export default function RoomsPage() {
               room={room}
               onBedClick={handleBedClick}
               onQrClick={setSelectedQrRoom}
+              onEditClick={setSelectedEditRoom}
             />
           ))}
         </div>
@@ -176,6 +180,14 @@ export default function RoomsPage() {
                     >
                       <QrCode className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">QR Placard</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedEditRoom(room)}
+                      title={`Edit Room ${room.roomNumber}`}
+                      className="p-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-default cursor-pointer text-xs flex items-center gap-1 font-semibold"
+                    >
+                      <Settings2 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Edit</span>
                     </button>
                   </div>
                   <span className="text-xs font-semibold text-slate-500">
@@ -219,6 +231,16 @@ export default function RoomsPage() {
         propertyTitle="Ideal Hostel"
         isOpen={!!selectedQrRoom}
         onClose={() => setSelectedQrRoom(null)}
+      />
+
+      <EditRoomModal
+        room={selectedEditRoom}
+        isOpen={!!selectedEditRoom}
+        onClose={() => setSelectedEditRoom(null)}
+        onUpdate={() => {
+          setSelectedEditRoom(null);
+          window.location.reload();
+        }}
       />
     </div>
   );

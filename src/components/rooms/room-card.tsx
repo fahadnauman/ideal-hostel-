@@ -2,7 +2,7 @@
 
 import type { Room, Bed } from "@/types";
 import BedIndicator from "./bed-indicator";
-import { DoorOpen, QrCode } from "lucide-react";
+import { DoorOpen, QrCode, Settings2 } from "lucide-react";
 
 const roomTypeLabels: Record<Room["roomType"], string> = {
   SINGLE: "Single Sharing",
@@ -16,9 +16,10 @@ interface RoomCardProps {
   room: Room;
   onBedClick: (bed: Bed) => void;
   onQrClick?: (room: Room) => void;
+  onEditClick?: (room: Room) => void;
 }
 
-export default function RoomCard({ room, onBedClick, onQrClick }: RoomCardProps) {
+export default function RoomCard({ room, onBedClick, onQrClick, onEditClick }: RoomCardProps) {
   const occupiedCount = room.beds.filter(
     (b) => b.status !== "AVAILABLE"
   ).length;
@@ -79,6 +80,20 @@ export default function RoomCard({ room, onBedClick, onQrClick }: RoomCardProps)
               className="p-2 rounded-xl bg-white hover:bg-slate-100 active:bg-slate-200 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-950 transition-default cursor-pointer shrink-0"
             >
               <QrCode className="w-4 h-4" />
+            </button>
+          )}
+
+          {onEditClick && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditClick(room);
+              }}
+              title={`Edit Room ${room.roomNumber}`}
+              aria-label={`Edit Room ${room.roomNumber}`}
+              className="p-2 rounded-xl bg-white hover:bg-slate-100 active:bg-slate-200 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-950 transition-default cursor-pointer shrink-0"
+            >
+              <Settings2 className="w-4 h-4" />
             </button>
           )}
         </div>

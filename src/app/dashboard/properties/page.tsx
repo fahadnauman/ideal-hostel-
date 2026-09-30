@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { OwnerSettings } from "@/types";
+import { mockFloors, mockRoomsByFloor } from "@/data/mock-rooms";
 
 export default function PropertiesPage() {
   const [settings, setSettings] = useState<OwnerSettings>({
@@ -38,6 +39,19 @@ export default function PropertiesPage() {
       })
       .catch((err) => console.error(err));
   }, []);
+
+  const totalFloors = mockFloors.length;
+  let totalCapacity = 0;
+  let activeResidents = 0;
+
+  for (const floorRooms of Object.values(mockRoomsByFloor)) {
+    for (const room of floorRooms) {
+      totalCapacity += room.beds.length;
+      activeResidents += room.beds.filter(b => b.status === "OCCUPIED" || b.status === "ENDING_SOON").length;
+    }
+  }
+
+  const occupancyPercent = totalCapacity > 0 ? Math.round((activeResidents / totalCapacity) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -105,7 +119,7 @@ export default function PropertiesPage() {
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Total Floors
             </span>
-            <p className="text-2xl font-black text-slate-900">3 Floors</p>
+            <p className="text-2xl font-black text-slate-900">{totalFloors} Floors</p>
             <span className="text-[11px] text-slate-400">Basement, 1st &amp; 2nd</span>
           </div>
 
@@ -113,15 +127,15 @@ export default function PropertiesPage() {
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Total Capacity
             </span>
-            <p className="text-2xl font-black text-slate-900">39 Beds</p>
-            <span className="text-[11px] text-emerald-600 font-semibold">0% Occupancy</span>
+            <p className="text-2xl font-black text-slate-900">{totalCapacity} Beds</p>
+            <span className="text-[11px] text-emerald-600 font-semibold">{occupancyPercent}% Occupancy</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Active Residents
             </span>
-            <p className="text-2xl font-black text-slate-900">0 Tenants</p>
+            <p className="text-2xl font-black text-slate-900">{activeResidents} Tenants</p>
             <Link href="/dashboard/tenants" className="text-[11px] text-blue-600 font-bold hover:underline">
               View Directory &rarr;
             </Link>

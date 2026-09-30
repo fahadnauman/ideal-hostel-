@@ -64,7 +64,12 @@ export const mockFloors: Floor[] = [
   { id: "floor-2", propertyId: PROPERTY_ID, floorNumber: 2, name: "Second Floor" },
 ];
 
-export const mockRoomsByFloor: Record<string, Room[]> = {
+declare global {
+  var __pghq_rooms: Record<string, Room[]> | undefined;
+}
+
+if (!globalThis.__pghq_rooms) {
+  globalThis.__pghq_rooms = {
   "floor-b": [
     room("floor-b", "B01", "DOUBLE", [[1, "AVAILABLE"], [2, "AVAILABLE"]]),
     room("floor-b", "B02", "DOUBLE", [[1, "AVAILABLE"], [2, "AVAILABLE"]]),
@@ -91,6 +96,9 @@ export const mockRoomsByFloor: Record<string, Room[]> = {
     room("floor-2", "209", "DOUBLE", [[1, "AVAILABLE"], [2, "AVAILABLE"]]),
     room("floor-2", "210", "DOUBLE", [[1, "AVAILABLE"], [2, "AVAILABLE"]]),
   ],
-};
+  };
+}
+
+export const mockRoomsByFloor = globalThis.__pghq_rooms;
 
 export const mockPaymentHistory: PaymentRecord[] = [];
