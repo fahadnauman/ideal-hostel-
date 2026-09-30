@@ -35,6 +35,7 @@ interface TenantSheetProps {
   bed: Bed | null;
   paymentHistory: PaymentRecord[];
   onClose: () => void;
+  onUpdate?: () => void;
 }
 
 const paymentStatusConfig: Record<
@@ -71,6 +72,7 @@ export default function TenantSheet({
   bed,
   paymentHistory,
   onClose,
+  onUpdate,
 }: TenantSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -146,7 +148,8 @@ export default function TenantSheet({
         }),
       });
       if (res.ok) {
-        window.location.reload();
+        if (onUpdate) onUpdate();
+        else window.location.reload();
       } else {
         alert("Failed to add tenant");
       }
@@ -264,11 +267,11 @@ export default function TenantSheet({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Phone Number</label>
-                    <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                    <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. 9037953712 or +91..." />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-600 block mb-1">WhatsApp Number</label>
-                    <input type="tel" value={formData.whatsappNumber} onChange={e => setFormData({...formData, whatsappNumber: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="WhatsApp number" />
+                    <input type="tel" value={formData.whatsappNumber} onChange={e => setFormData({...formData, whatsappNumber: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. 9037953712 or +91..." />
                   </div>
                   <div className="col-span-2">
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Permanent Address</label>
@@ -300,7 +303,7 @@ export default function TenantSheet({
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Parent Phone</label>
-                    <input type="tel" value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                    <input type="tel" value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. 9037953712 or +91..." />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-600 block mb-1">Occupation (Optional)</label>
@@ -392,7 +395,7 @@ export default function TenantSheet({
                     <span>Call</span>
                   </a>
                   <a
-                    href={`https://wa.me/${tenant.phone.replace(/[^0-9]/g, "")}?text=Hi%20${encodeURIComponent(tenant.name)},%20this%20is%20from%20PGHQ%20regarding%20your%20room%20rent.`}
+                    href={`https://wa.me/${(tenant.whatsappNumber || tenant.phone).replace(/[^0-9]/g, "").length === 10 ? "91" + (tenant.whatsappNumber || tenant.phone).replace(/[^0-9]/g, "") : (tenant.whatsappNumber || tenant.phone).replace(/[^0-9]/g, "")}?text=Hi%20${encodeURIComponent(tenant.name)},%20this%20is%20from%20PGHQ.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold text-xs transition-default shadow-xs cursor-pointer min-h-[56px]"

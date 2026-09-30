@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { mockRoomsByFloor } from "@/data/mock-rooms";
 import {
   getAllTenants,
   getTenantById,
@@ -160,6 +161,20 @@ export async function POST(request: NextRequest) {
         emergencyContactPhone: parentPhone || "",
         emergencyContactRelation: parentName ? "Parent" : "",
       });
+
+      // Map the tenant to the global bed state so it persists in the UI
+      for (const floor of Object.values(mockRoomsByFloor)) {
+        const room = floor.find(r => r.beds.some(b => b.id === bedId));
+        if (room) {
+          const bed = room.beds.find(b => b.id === bedId);
+          if (bed) {
+            bed.tenant = tenant;
+            bed.status = "OCCUPIED";
+          }
+          break;
+        }
+      }
+
       return NextResponse.json({ success: true, tenant });
     }
 
