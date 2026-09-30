@@ -30,6 +30,22 @@ export default function PropertiesPage() {
     dinnerWindow: "08:00 PM - 10:00 PM",
     updatedAt: new Date().toISOString(),
   });
+  const [rooms, setRooms] = useState<Record<string, any>>(mockRoomsByFloor);
+
+  useEffect(() => {
+    async function fetchRooms() {
+      try {
+        const res = await fetch("/api/rooms");
+        if (res.ok) {
+          const data = await res.json();
+          setRooms(data.rooms);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRooms();
+  }, []);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -44,10 +60,10 @@ export default function PropertiesPage() {
   let totalCapacity = 0;
   let activeResidents = 0;
 
-  for (const floorRooms of Object.values(mockRoomsByFloor)) {
+  for (const floorRooms of Object.values(rooms)) {
     for (const room of floorRooms) {
       totalCapacity += room.beds.length;
-      activeResidents += room.beds.filter(b => b.status === "OCCUPIED" || b.status === "ENDING_SOON").length;
+      activeResidents += room.beds.filter((b: any) => b.status === "OCCUPIED" || b.status === "ENDING_SOON").length;
     }
   }
 

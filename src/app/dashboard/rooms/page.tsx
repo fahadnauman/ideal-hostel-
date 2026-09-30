@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { Bed, Room } from "@/types";
 import { mockFloors, mockRoomsByFloor, mockPaymentHistory } from "@/data/mock-rooms";
 import FloorSelector from "@/components/rooms/floor-selector";
@@ -20,7 +20,24 @@ export default function RoomsPage() {
   const [viewMode, setViewMode] = useState<"cards" | "matrix">("cards");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const rooms = mockRoomsByFloor[activeFloorId] ?? [];
+  const [fetchedRooms, setFetchedRooms] = useState<Record<string, Room[]>>(mockRoomsByFloor);
+
+  useEffect(() => {
+    async function fetchRooms() {
+      try {
+        const res = await fetch("/api/rooms");
+        if (res.ok) {
+          const data = await res.json();
+          setFetchedRooms(data.rooms);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRooms();
+  }, []);
+
+  const rooms = fetchedRooms[activeFloorId] ?? [];
   const activeFloor = mockFloors.find((f) => f.id === activeFloorId);
 
   const handleBedClick = useCallback((bed: Bed) => {

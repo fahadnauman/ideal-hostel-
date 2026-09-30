@@ -10,6 +10,10 @@ function getRoomType(bedsCount: number) {
   return "DORMITORY";
 }
 
+export async function GET() {
+  return NextResponse.json({ success: true, rooms: mockRoomsByFloor });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

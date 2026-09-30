@@ -125,17 +125,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
       // silent
     }
 
-    // Static reminders for dues & quick actions
-    notifs.push({
-      id: "dues-alert",
-      type: "payment",
-      title: "12 tenants have pending dues",
-      body: "₹47,200 outstanding. Visit Finance & Ledger to follow up.",
-      href: "/dashboard/finance",
-      time: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-      read: false,
-    });
-
     setNotifications(notifs);
   }, []);
 

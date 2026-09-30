@@ -23,7 +23,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import type { MaintenanceTask, Tenant } from "@/types";
-import { mockRoomsByFloor } from "@/data/mock-rooms";
+import { mockRoomsByFloor as initialRooms } from "@/data/mock-rooms";
 
 /* ─── Metric Card Data ──────────────────────────────────── */
 
@@ -296,13 +296,30 @@ export default function DashboardPage() {
   const [dueTenants, setDueTenants] = useState(0);
 
   useEffect(() => {
-    let tb = 0;
-    Object.values(mockRoomsByFloor).forEach((floor) => {
-      floor.forEach((room) => {
-        tb += room.beds.length;
-      });
-    });
-    setTotalBeds(tb);
+    async function fetchRooms() {
+      try {
+        const res = await fetch("/api/rooms");
+        if (res.ok) {
+          const data = await res.json();
+          let tb = 0;
+          Object.values(data.rooms).forEach((floor: any) => {
+            floor.forEach((room: any) => {
+              tb += room.beds.length;
+            });
+          });
+          setTotalBeds(tb);
+        }
+      } catch {
+        let tb = 0;
+        Object.values(initialRooms).forEach((floor: any) => {
+          floor.forEach((room: any) => {
+            tb += room.beds.length;
+          });
+        });
+        setTotalBeds(tb);
+      }
+    }
+    fetchRooms();
 
     async function fetchTenants() {
       try {
