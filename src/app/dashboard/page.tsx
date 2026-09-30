@@ -22,7 +22,8 @@ import {
   CheckCircle2,
   ClipboardList,
 } from "lucide-react";
-import type { MaintenanceTask } from "@/types";
+import type { MaintenanceTask, Tenant } from "@/types";
+import { mockRoomsByFloor } from "@/data/mock-rooms";
 
 /* ─── Metric Card Data ──────────────────────────────────── */
 
@@ -37,48 +38,7 @@ interface Metric {
   href: string;
 }
 
-const metrics: Metric[] = [
-  {
-    label: "Total Beds",
-    value: "120",
-    change: "+4 this month",
-    trend: "up",
-    icon: BedDouble,
-    iconBg: "bg-blue-50 border border-blue-200",
-    iconColor: "text-blue-700",
-    href: "/dashboard/rooms",
-  },
-  {
-    label: "Occupied Beds",
-    value: "98",
-    change: "81.6% occupancy",
-    trend: "up",
-    icon: UserCheck,
-    iconBg: "bg-emerald-50 border border-emerald-200",
-    iconColor: "text-emerald-700",
-    href: "/dashboard/rooms",
-  },
-  {
-    label: "Vacant Beds",
-    value: "22",
-    change: "3 reserved",
-    trend: "down",
-    icon: DoorOpen,
-    iconBg: "bg-amber-50 border border-amber-200",
-    iconColor: "text-amber-700",
-    href: "/dashboard/rooms",
-  },
-  {
-    label: "Pending Dues",
-    value: "₹47,200",
-    change: "12 tenants",
-    trend: "down",
-    icon: IndianRupee,
-    iconBg: "bg-rose-50 border border-rose-200",
-    iconColor: "text-rose-700",
-    href: "/dashboard/rooms",
-  },
-];
+// Metrics dynamically generated inside component
 
 /* ─── Category Labels ────────────────────────────────────── */
 
@@ -235,6 +195,91 @@ function PendingMaintenanceWidget() {
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default function DashboardPage() {
+  const [totalBeds, setTotalBeds] = useState(0);
+  const [occupiedBeds, setOccupiedBeds] = useState(0);
+  const [pendingDues, setPendingDues] = useState(0);
+  const [dueTenants, setDueTenants] = useState(0);
+
+  useEffect(() => {
+    let tb = 0;
+    Object.values(mockRoomsByFloor).forEach((floor) => {
+      floor.forEach((room) => {
+        tb += room.beds.length;
+      });
+    });
+    setTotalBeds(tb);
+
+    async function fetchTenants() {
+      try {
+        const res = await fetch("/api/tenants");
+        if (res.ok) {
+          const data = await res.json();
+          const tenants = data.tenants as Tenant[];
+          const occupied = tenants.length;
+          let dues = 0;
+          let duesC = 0;
+          tenants.forEach(t => {
+            if (t.paymentStatus === "UNPAID" || t.paymentStatus === "OVERDUE" || t.paymentStatus === "PARTIAL") {
+              dues += (t.monthlyRent || 0);
+              duesC++;
+            }
+          });
+          setOccupiedBeds(occupied);
+          setPendingDues(dues);
+          setDueTenants(duesC);
+        }
+      } catch {
+        // silent
+      }
+    }
+    fetchTenants();
+  }, []);
+
+  const vacantBeds = totalBeds - occupiedBeds;
+  const occupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
+
+  const dynamicMetrics: Metric[] = [
+    {
+      label: "Total Beds",
+      value: totalBeds.toString(),
+      change: "Active architecture",
+      trend: "neutral",
+      icon: BedDouble,
+      iconBg: "bg-blue-50 border border-blue-200",
+      iconColor: "text-blue-700",
+      href: "/dashboard/rooms",
+    },
+    {
+      label: "Occupied Beds",
+      value: occupiedBeds.toString(),
+      change: `${occupancyRate}% occupancy`,
+      trend: "up",
+      icon: UserCheck,
+      iconBg: "bg-emerald-50 border border-emerald-200",
+      iconColor: "text-emerald-700",
+      href: "/dashboard/rooms",
+    },
+    {
+      label: "Vacant Beds",
+      value: vacantBeds.toString(),
+      change: "Available to book",
+      trend: "neutral",
+      icon: DoorOpen,
+      iconBg: "bg-amber-50 border border-amber-200",
+      iconColor: "text-amber-700",
+      href: "/dashboard/rooms",
+    },
+    {
+      label: "Pending Dues",
+      value: `₹${pendingDues.toLocaleString("en-IN")}`,
+      change: `${dueTenants} tenants`,
+      trend: "down",
+      icon: IndianRupee,
+      iconBg: "bg-rose-50 border border-rose-200",
+      iconColor: "text-rose-700",
+      href: "/dashboard/rooms",
+    },
+  ];
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* ── Welcome / Client Handoff Banner ─────────────────── */}
@@ -265,7 +310,7 @@ export default function DashboardPage() {
 
       {/* ── Metric Cards ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {metrics.map((metric) => (
+        {dynamicMetrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
