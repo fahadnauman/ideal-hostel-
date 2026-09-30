@@ -3,6 +3,7 @@ import {
   getAllTenants,
   getTenantById,
   updateTenant,
+  addTenant,
   getTenantPaymentHistory,
   addPaymentRecord,
   createPaymentSubmission,
@@ -124,6 +125,29 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action } = body;
+
+    // Add a new tenant
+    if (action === "add_tenant") {
+      const { name, phone, roomNumber, bedId, monthlyRent, advanceDeposit, checkInDate } = body;
+      const tenant = addTenant({
+        name,
+        phone,
+        roomNumber,
+        bedId,
+        monthlyRent: Number(monthlyRent),
+        advanceDeposit: Number(advanceDeposit),
+        checkInDate,
+        paymentStatus: "PAID",
+        status: "ACTIVE",
+        rentDueDate: 5,
+        email: null,
+        leaseEndDate: null,
+        emergencyContactName: "",
+        emergencyContactPhone: "",
+        emergencyContactRelation: "",
+      });
+      return NextResponse.json({ success: true, tenant });
+    }
 
     // Record verified payment
     if (action === "record_payment") {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import type { Bed, PaymentRecord } from "@/types";
 import { getStatusConfig } from "./status-legend";
 import {
@@ -20,8 +20,12 @@ import {
   Coffee,
   Sun,
   Moon,
+  Printer,
+  ChevronRight,
 } from "lucide-react";
 import RecordPaymentModal from "@/components/finance/record-payment-modal";
+import { Room } from "@/types";
+import { mockRoomsByFloor } from "@/data/mock-rooms";
 
 interface TenantSheetProps {
   bed: Bed | null;
@@ -66,6 +70,69 @@ export default function TenantSheet({
 }: TenantSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isAddingTenant, setIsAddingTenant] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    monthlyRent: "",
+    advanceDeposit: "",
+    checkInDate: new Date().toISOString().split("T")[0],
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  // Derive room info
+  const room = useMemo(() => {
+    if (!bed) return null;
+    for (const floor of Object.values(mockRoomsByFloor)) {
+      const found = floor.find(r => r.beds.some(b => b.id === bed.id));
+      if (found) return found;
+    }
+    return null;
+  }, [bed]);
+
+  // Set default rent on open add form
+  useEffect(() => {
+    if (isAddingTenant && room) {
+      setFormData(prev => ({
+        ...prev,
+        monthlyRent: room.roomType === "TRIPLE" ? "4000" : "4500",
+        advanceDeposit: room.roomType === "TRIPLE" ? "4000" : "4500",
+      }));
+    }
+  }, [isAddingTenant, room]);
+
+  const handleAddTenant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bed || !room) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/tenants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "add_tenant",
+          name: formData.name,
+          phone: formData.phone,
+          roomNumber: room.roomNumber,
+          bedId: bed.id,
+          monthlyRent: formData.monthlyRent,
+          advanceDeposit: formData.advanceDeposit,
+          checkInDate: formData.checkInDate,
+        }),
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert("Failed to add tenant");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error adding tenant");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Close on Escape
   useEffect(() => {
@@ -139,7 +206,10 @@ export default function TenantSheet({
             </div>
 
             <button
-              onClick={onClose}
+              onClick={() => {
+                if (isAddingTenant) setIsAddingTenant(false);
+                else onClose();
+              }}
               aria-label="Close details"
               className="p-2.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-default cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
@@ -150,7 +220,46 @@ export default function TenantSheet({
 
         {/* ── Content ──────────────────────────────────── */}
         <div className="px-5 sm:px-6 py-5 space-y-6 pb-20 sm:pb-8">
-          {tenant ? (
+          {isAddingTenant ? (
+            <form onSubmit={handleAddTenant} className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-slate-900">New Tenant Details</h3>
+                
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">Full Name</label>
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Enter name" />
+                </div>
+                
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">Phone Number</label>
+                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Phone number" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Monthly Rent</label>
+                    <input required type="number" value={formData.monthlyRent} onChange={e => setFormData({...formData, monthlyRent: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Security Deposit</label>
+                    <input required type="number" value={formData.advanceDeposit} onChange={e => setFormData({...formData, advanceDeposit: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">Check-in Date</label>
+                  <input required type="date" value={formData.checkInDate} onChange={e => setFormData({...formData, checkInDate: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                <button type="button" onClick={() => setIsAddingTenant(false)} className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-default">Cancel</button>
+                <button type="submit" disabled={loading} className="px-5 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-default disabled:opacity-50">
+                  {loading ? "Saving..." : "Confirm & Assign Bed"}
+                </button>
+              </div>
+            </form>
+          ) : tenant ? (
             <>
               {/* Tenant Profile Card */}
               <section className="space-y-4">
@@ -348,6 +457,18 @@ export default function TenantSheet({
                   </table>
                 </div>
               </section>
+
+              {/* Print Application */}
+              <div className="pt-4 mt-6 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => window.open(`/print-application/${tenant.id}`, '_blank')}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-slate-800 transition-default shadow-xs"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print Application PDF
+                </button>
+              </div>
             </>
           ) : (
             /* Vacant Bed Actions */
@@ -363,6 +484,7 @@ export default function TenantSheet({
               </div>
               <button
                 type="button"
+                onClick={() => setIsAddingTenant(true)}
                 className="w-full max-w-xs py-3 px-5 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold text-sm
                            rounded-xl transition-default cursor-pointer min-h-[48px] shadow-sm"
               >

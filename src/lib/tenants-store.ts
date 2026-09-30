@@ -61,6 +61,16 @@ export function updateTenant(id: string, updates: Partial<Tenant>): Tenant | nul
   return updated;
 }
 
+export function addTenant(tenant: Omit<Tenant, "id">): Tenant {
+  if (!globalThis.__pghq_tenants) globalThis.__pghq_tenants = [];
+  const newTenant: Tenant = {
+    ...tenant,
+    id: `ten-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+  };
+  globalThis.__pghq_tenants.unshift(newTenant);
+  return newTenant;
+}
+
 export function getTenantPaymentHistory(tenantId: string): PaymentRecord[] {
   return (globalThis.__pghq_ledger ?? [])
     .filter((p) => p.tenantId === tenantId)
