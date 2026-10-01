@@ -219,9 +219,9 @@ function MaintenanceReportForm() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         setSubmittedTicket({
           id: data.task.id,
           roomNumber: data.task.roomNumber,
@@ -234,7 +234,9 @@ function MaintenanceReportForm() {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       } else {
-        setErrorMessage(data.error || "Failed to submit request. Please try again.");
+        const errMsg = data?.error || "Failed to submit request. Please try again.";
+        console.error("API Error Response:", data);
+        setErrorMessage(`Server Error: ${errMsg}`);
       }
     } catch (err) {
       console.error("Submission failed:", err);

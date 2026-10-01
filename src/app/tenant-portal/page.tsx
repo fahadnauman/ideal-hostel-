@@ -439,7 +439,10 @@ function TenantPortalContent() {
           "Your repair request has been sent to the property owner. The maintenance team will attend to it as soon as possible."
         );
       } else {
-        alert("Failed to submit maintenance request.");
+        const errorData = await res.json().catch(() => null);
+        const errMsg = errorData?.error || "Failed to submit maintenance request.";
+        console.error("API Error Response:", errorData);
+        alert(`Server Error: ${errMsg}`);
       }
     } catch (err) {
       console.error("Error creating maintenance ticket:", err);
