@@ -173,7 +173,7 @@ const maintenanceCategories: {
 
 function TenantPortalContent() {
   const searchParams = useSearchParams();
-  const roomParam = searchParams.get("room") || searchParams.get("roomNumber") || "101";
+  const roomParam = searchParams.get("room") || searchParams.get("roomNumber") || "R01";
 
   const [activeTab, setActiveTab] = useState<"PAY" | "MESS" | "MAINTENANCE">("PAY");
   const [currentRoom, setCurrentRoom] = useState<string>(roomParam.toUpperCase());
@@ -501,14 +501,10 @@ function TenantPortalContent() {
                 onChange={(e) => setCurrentRoom(e.target.value)}
                 className="bg-transparent text-white font-black text-xs outline-none cursor-pointer"
               >
-                <option value="G01" className="text-slate-900">G01</option>
-                <option value="G02" className="text-slate-900">G02</option>
-                <option value="G03" className="text-slate-900">G03</option>
-                <option value="101" className="text-slate-900">101</option>
-                <option value="102" className="text-slate-900">102</option>
-                <option value="103" className="text-slate-900">103</option>
-                <option value="201" className="text-slate-900">201</option>
-                <option value="203" className="text-slate-900">203</option>
+                {Array.from({ length: 20 }, (_, i) => i + 1).map(num => {
+                  const r = `R${num.toString().padStart(2, '0')}`;
+                  return <option key={r} value={r} className="text-slate-900">{r}</option>;
+                })}
               </select>
             </div>
           </div>

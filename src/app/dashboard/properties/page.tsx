@@ -15,7 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { OwnerSettings } from "@/types";
-import { mockFloors, mockRoomsByFloor } from "@/data/mock-rooms";
+
 
 export default function PropertiesPage() {
   const [settings, setSettings] = useState<OwnerSettings>({
@@ -30,8 +30,7 @@ export default function PropertiesPage() {
     dinnerWindow: "08:00 PM - 10:00 PM",
     updatedAt: new Date().toISOString(),
   });
-  const [rooms, setRooms] = useState<Record<string, any>>(mockRoomsByFloor);
-
+  const [rooms, setRooms] = useState<Record<string, any>>({});
   useEffect(() => {
     async function fetchRooms() {
       try {
@@ -56,7 +55,7 @@ export default function PropertiesPage() {
       .catch((err) => console.error(err));
   }, []);
 
-  const totalFloors = mockFloors.length;
+  const totalFloors = Object.keys(rooms).length;
   let totalCapacity = 0;
   let activeResidents = 0;
 

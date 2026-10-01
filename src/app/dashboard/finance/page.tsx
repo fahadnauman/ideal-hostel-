@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mockPaymentHistory, mockRoomsByFloor } from "@/data/mock-rooms";
+import { useEffect } from "react";
 import type { PaymentRecord, PaymentStatus, PaymentMode } from "@/types";
 import { 
   IndianRupee, 
@@ -22,28 +22,28 @@ import {
 import RecordPaymentModal from "@/components/finance/record-payment-modal";
 
 export default function FinanceDashboard() {
+  const [financeData, setFinanceData] = useState<{ totalRevenue: number, pendingDues: number, totalAdvance: number, history: PaymentRecord[] } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/finance').then(r => r.json()).then(d => {
+      if(d.success) setFinanceData({ totalRevenue: d.totalRevenue, pendingDues: d.pendingDues, totalAdvance: d.totalAdvance, history: d.history });
+    });
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentStatus | "ALL">("ALL");
   const [selectedTenantForPayment, setSelectedTenantForPayment] = useState<{ id: string, name: string, amount: number } | null>(null);
 
   // Derive some fake KPIs from the mock data
-  const totalRevenue = mockPaymentHistory.filter(p => p.status === "PAID").reduce((sum, p) => sum + p.amount, 0);
-  const pendingDues = mockPaymentHistory.filter(p => p.status === "UNPAID" || p.status === "OVERDUE" || p.status === "PARTIAL").reduce((sum, p) => sum + p.amount, 0);
+  const totalRevenue = financeData?.totalRevenue || 0;
+  const pendingDues = financeData?.pendingDues || 0;
   // Advance deposits from all tenants
-  let totalAdvance = 0;
-  Object.values(mockRoomsByFloor).forEach(rooms => {
-    rooms.forEach(room => {
-      room.beds.forEach(bed => {
-        if (bed.tenant) totalAdvance += bed.tenant.advanceDeposit;
-      });
-    });
-  });
+  const totalAdvance = financeData?.totalAdvance || 0;
   
   const totalBilled = totalRevenue + pendingDues;
   const collectionRate = totalBilled > 0 ? Math.round((totalRevenue / totalBilled) * 100) : 0;
 
   // Filter logs
-  const filteredLogs = mockPaymentHistory.filter(record => {
+  const filteredLogs = (financeData?.history || []).filter(record => {
     const matchesSearch = record.tenantName.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           record.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "ALL" || record.status === statusFilter;

@@ -20,7 +20,7 @@ export default function RoomsPage() {
   const [viewMode, setViewMode] = useState<"cards" | "matrix">("cards");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const [fetchedRooms, setFetchedRooms] = useState<Record<string, Room[]>>(mockRoomsByFloor);
+  const [fetchedRooms, setFetchedRooms] = useState<Record<string, Room[]>>({});
 
   useEffect(() => {
     async function fetchRooms() {
@@ -235,9 +235,9 @@ export default function RoomsPage() {
         </div>
       )}
 
-      {/* ── Tenant Slide-Over / Mobile Bottom Drawer ──── */}
       <TenantSheet
         bed={selectedBed}
+        room={selectedBed ? fetchedRooms[activeFloorId]?.find(r => r.beds.some(b => b.id === selectedBed.id)) || Object.values(fetchedRooms).flat().find(r => r.beds.some(b => b.id === selectedBed.id)) : null}
         paymentHistory={mockPaymentHistory}
         onClose={handleCloseSheet}
         onUpdate={(updatedTenant?: any) => {

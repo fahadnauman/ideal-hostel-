@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getAllTasks,
-  createTask,
-  updateTaskStatus,
-  deleteTask,
-} from "@/lib/maintenance-store";
-import type { MaintenanceCategory, MaintenanceStatus } from "@/types";
+import { prisma } from "@/lib/prisma";
+import type { MaintenanceStatus } from "@prisma/client";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,28 +12,40 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status") as MaintenanceStatus | null;
     const room = searchParams.get("room");
 
-    let tasks = getAllTasks();
-
+    const where: any = {};
     if (status) {
-      tasks = tasks.filter((t) => t.status === status);
+      where.status = status;
     }
     if (room) {
-      tasks = tasks.filter(
-        (t) =>
-          t.roomNumber.toLowerCase() === room.toLowerCase() ||
-          t.roomId.toLowerCase() === room.toLowerCase()
-      );
+      where.OR = [
+        { roomId: room },
+        { room: { roomNumber: { equals: room, mode: "insensitive" } } }
+      ];
     }
+
+    const tasksDb = await prisma.maintenanceTask.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { room: true },
+    });
+
+    const tasks = tasksDb.map(t => ({
+      ...t,
+      roomNumber: t.room?.roomNumber || "Unknown",
+      tenantPhone: null,
+    }));
+
+    const allTasks = await prisma.maintenanceTask.findMany({ select: { status: true } });
 
     return NextResponse.json({
       success: true,
       tasks,
       total: tasks.length,
       counts: {
-        total: getAllTasks().length,
-        pending: getAllTasks().filter((t) => t.status === "PENDING").length,
-        inProgress: getAllTasks().filter((t) => t.status === "IN_PROGRESS").length,
-        resolved: getAllTasks().filter((t) => t.status === "RESOLVED").length,
+        total: allTasks.length,
+        pending: allTasks.filter((t) => t.status === "PENDING").length,
+        inProgress: allTasks.filter((t) => t.status === "IN_PROGRESS").length,
+        resolved: allTasks.filter((t) => t.status === "RESOLVED").length,
       },
     });
   } catch (error) {
@@ -49,7 +60,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { roomNumber, category, description, photoUrl, tenantName, tenantPhone, roomId } = body;
+    const { roomNumber, category, description, photoUrl, tenantName, roomId } = body;
 
     if (!roomNumber || !description) {
       return NextResponse.json(
@@ -58,7 +69,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validCategories: MaintenanceCategory[] = [
+    let finalRoomId = roomId;
+
+    if (!finalRoomId && roomNumber) {
+      const dbRoom = await prisma.room.findFirst({
+        where: { roomNumber: { equals: String(roomNumber).trim(), mode: "insensitive" } }
+      });
+      if (dbRoom) {
+        finalRoomId = dbRoom.id;
+      } else {
+        let floor = await prisma.floor.findFirst();
+        if (!floor) {
+          const property = await prisma.property.findFirst();
+          if (property) {
+             floor = await prisma.floor.create({ data: { propertyId: property.id, floorNumber: 1, name: "Ground Floor" } });
+          }
+        }
+        if (floor) {
+          const newRoom = await prisma.room.create({ data: { floorId: floor.id, roomNumber: String(roomNumber).trim().toUpperCase() } });
+          finalRoomId = newRoom.id;
+        } else {
+          return NextResponse.json({ success: false, error: "System has no property/floor setup." }, { status: 400 });
+        }
+      }
+    }
+
+    const validCategories = [
       "PLUMBING",
       "ELECTRICAL",
       "AC_VENTILATION",
@@ -67,19 +103,25 @@ export async function POST(request: NextRequest) {
       "OTHER",
     ];
 
-    const taskCategory: MaintenanceCategory = validCategories.includes(category)
-      ? category
-      : "OTHER";
+    const taskCategory = validCategories.includes(category) ? category : "OTHER";
 
-    const newTask = createTask({
-      roomNumber: String(roomNumber).trim().toUpperCase(),
-      roomId: roomId ? String(roomId).trim() : undefined,
-      category: taskCategory,
-      description: String(description).trim(),
-      photoUrl: photoUrl || null,
-      tenantName: tenantName ? String(tenantName).trim() : null,
-      tenantPhone: tenantPhone ? String(tenantPhone).trim() : null,
+    const newTaskDb = await prisma.maintenanceTask.create({
+      data: {
+        roomId: finalRoomId,
+        category: taskCategory,
+        description: String(description).trim(),
+        photoUrl: photoUrl || null,
+        tenantName: tenantName ? String(tenantName).trim() : null,
+        status: "PENDING",
+      },
+      include: { room: true },
     });
+
+    const newTask = {
+      ...newTaskDb,
+      roomNumber: newTaskDb.room?.roomNumber || "Unknown",
+      tenantPhone: null,
+    };
 
     return NextResponse.json(
       {
@@ -110,7 +152,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const validStatuses: MaintenanceStatus[] = ["PENDING", "IN_PROGRESS", "RESOLVED"];
+    const validStatuses = ["PENDING", "IN_PROGRESS", "RESOLVED"];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { success: false, error: "Invalid status value" },
@@ -118,17 +160,73 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const updated = updateTaskStatus(id, status);
-    if (!updated) {
-      return NextResponse.json(
-        { success: false, error: "Task not found" },
-        { status: 404 }
-      );
-    }
+    const updatedDb = await prisma.maintenanceTask.update({
+      where: { id },
+      data: { status: status as MaintenanceStatus },
+      include: { room: true },
+    });
+
+    const updated = {
+      ...updatedDb,
+      roomNumber: updatedDb.room?.roomNumber || "Unknown",
+      tenantPhone: null,
+    };
 
     return NextResponse.json({
       success: true,
       message: `Task status updated to ${status}`,
+      task: updated,
+    });
+  } catch (error) {
+    console.error("Error updating maintenance task:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update maintenance task" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, roomNumber, category, description, tenantName } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Task ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const dataToUpdate: any = {};
+    if (category) dataToUpdate.category = category;
+    if (description) dataToUpdate.description = description;
+    if (tenantName !== undefined) dataToUpdate.tenantName = tenantName;
+
+    if (roomNumber) {
+      const dbRoom = await prisma.room.findFirst({
+        where: { roomNumber: { equals: String(roomNumber).trim(), mode: "insensitive" } }
+      });
+      if (dbRoom) {
+        dataToUpdate.roomId = dbRoom.id;
+      }
+    }
+
+    const updatedDb = await prisma.maintenanceTask.update({
+      where: { id },
+      data: dataToUpdate,
+      include: { room: true },
+    });
+
+    const updated = {
+      ...updatedDb,
+      roomNumber: updatedDb.room?.roomNumber || "Unknown",
+      tenantPhone: null,
+    };
+
+    return NextResponse.json({
+      success: true,
+      message: `Task updated successfully`,
       task: updated,
     });
   } catch (error) {
@@ -152,13 +250,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const deleted = deleteTask(id);
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, error: "Task not found or already deleted" },
-        { status: 404 }
-      );
-    }
+    await prisma.maintenanceTask.delete({
+      where: { id }
+    });
 
     return NextResponse.json({
       success: true,

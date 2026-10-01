@@ -17,6 +17,7 @@ import {
   CheckSquare,
   AlertTriangle,
   RotateCcw,
+  Pencil,
 } from "lucide-react";
 import type { OwnerTask, TaskPriority, TaskStatus } from "@/types";
 
@@ -116,15 +117,17 @@ function isDueDateOverdue(dateStr: string | null): boolean {
 
 interface AddTaskFormProps {
   onAdd: () => void;
+  initialData?: OwnerTask;
+  onCancelEdit?: () => void;
 }
 
-function AddTaskForm({ onAdd }: AddTaskFormProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [title, setTitle] = useState("");
-  const [notes, setNotes] = useState("");
-  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
-  const [dueDate, setDueDate] = useState("");
-  const [category, setCategory] = useState("General");
+function AddTaskForm({ onAdd, initialData, onCancelEdit }: AddTaskFormProps) {
+  const [expanded, setExpanded] = useState(!!initialData);
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [notes, setNotes] = useState(initialData?.notes || "");
+  const [priority, setPriority] = useState<TaskPriority>(initialData?.priority || "MEDIUM");
+  const [dueDate, setDueDate] = useState(initialData?.dueDate ? initialData.dueDate.split("T")[0] : "");
+  const [category, setCategory] = useState(initialData?.category || "General");
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,16 +135,16 @@ function AddTaskForm({ onAdd }: AddTaskFormProps) {
     if (!title.trim()) return;
     setSaving(true);
     try {
-      await fetch("/api/tasks", {
-        method: "POST",
+      const url = "/api/tasks";
+      const method = initialData ? "PATCH" : "POST";
+      const bodyPayload = initialData 
+        ? { id: initialData.id, title: title.trim(), notes, priority, dueDate: dueDate || null, category }
+        : { title: title.trim(), notes, priority, dueDate: dueDate || null, category };
+      
+      await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          notes,
-          priority,
-          dueDate: dueDate || null,
-          category,
-        }),
+        body: JSON.stringify(bodyPayload),
       });
       setTitle("");
       setNotes("");
@@ -173,9 +176,9 @@ function AddTaskForm({ onAdd }: AddTaskFormProps) {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-              <Plus className="w-4 h-4" />
+              {initialData ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             </div>
-            <h3 className="text-sm font-extrabold text-slate-900">New Task</h3>
+            <h3 className="text-sm font-extrabold text-slate-900">{initialData ? 'Edit Task' : 'New Task'}</h3>
           </div>
 
           {/* Title */}
@@ -262,7 +265,10 @@ function AddTaskForm({ onAdd }: AddTaskFormProps) {
             </button>
             <button
               type="button"
-              onClick={() => setExpanded(false)}
+              onClick={() => {
+                setExpanded(false);
+                if (onCancelEdit) onCancelEdit();
+              }}
               className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               Cancel
@@ -285,6 +291,11 @@ interface TaskCardProps {
 function TaskCard({ task, index, onUpdate }: TaskCardProps) {
   const [updating, setUpdating] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (isEditing) {
+    return <AddTaskForm initialData={task} onAdd={() => { setIsEditing(false); onUpdate(); }} onCancelEdit={() => setIsEditing(false)} />;
+  }
 
   const p = PRIORITY_CONFIG[task.priority];
   const s = STATUS_CONFIG[task.status];
@@ -379,12 +390,22 @@ function TaskCard({ task, index, onUpdate }: TaskCardProps) {
               >
                 {task.title}
               </p>
-              <button
-                onClick={handleDelete}
-                className="shrink-0 p-1 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center shrink-0">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="shrink-0 p-1 rounded-lg text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
+                  title="Edit task"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="shrink-0 p-1 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                  title="Delete task"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Meta row */}

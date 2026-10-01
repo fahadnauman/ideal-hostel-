@@ -79,6 +79,21 @@ export function updateTaskStatus(
   return updated;
 }
 
+export function updateTask(id: string, updates: Partial<MaintenanceTask>): MaintenanceTask | null {
+  if (!globalThis.__pghq_maintenance_tasks) return null;
+  const index = globalThis.__pghq_maintenance_tasks.findIndex((t) => t.id === id);
+  if (index === -1) return null;
+
+  const updated: MaintenanceTask = {
+    ...globalThis.__pghq_maintenance_tasks[index],
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+
+  globalThis.__pghq_maintenance_tasks[index] = updated;
+  return updated;
+}
+
 export function deleteTask(id: string): boolean {
   if (!globalThis.__pghq_maintenance_tasks) return false;
   const initialLen = globalThis.__pghq_maintenance_tasks.length;

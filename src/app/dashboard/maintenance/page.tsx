@@ -25,6 +25,7 @@ import {
   Eye,
   X,
   Building2,
+  Pencil,
 } from "lucide-react";
 import type { MaintenanceTask, MaintenanceStatus, MaintenanceCategory, Room } from "@/types";
 import RoomQrModal from "@/components/rooms/room-qr-modal";
@@ -125,6 +126,7 @@ export default function OwnerMaintenancePage() {
   const [manualDescription, setManualDescription] = useState("");
   const [manualTenantName, setManualTenantName] = useState("");
   const [isCreatingManual, setIsCreatingManual] = useState(false);
+  const [editingTask, setEditingTask] = useState<MaintenanceTask | null>(null);
 
   // Fetch tasks
   const fetchTasks = async (showSpinner = false) => {
@@ -209,25 +211,34 @@ export default function OwnerMaintenancePage() {
 
     setIsCreatingManual(true);
     try {
-      const res = await fetch("/api/maintenance", {
-        method: "POST",
+      const url = editingTask ? `/api/maintenance` : "/api/maintenance";
+      const method = editingTask ? "PUT" : "POST";
+      const bodyPayload = editingTask 
+        ? { id: editingTask.id, roomNumber: manualRoomNumber, category: manualCategory, description: manualDescription, tenantName: manualTenantName || null }
+        : { roomNumber: manualRoomNumber, category: manualCategory, description: manualDescription, tenantName: manualTenantName || null };
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          roomNumber: manualRoomNumber,
-          category: manualCategory,
-          description: manualDescription,
-          tenantName: manualTenantName || null,
-        }),
+        body: JSON.stringify(bodyPayload),
       });
       const data = await res.json();
       if (data.success && data.task) {
-        setTasks((prev) => [data.task, ...prev]);
+        if (editingTask) {
+           setTasks((prev) => prev.map(t => t.id === data.task.id ? data.task : t));
+        } else {
+           setTasks((prev) => [data.task, ...prev]);
+        }
         setShowManualModal(false);
+        setEditingTask(null);
         setManualDescription("");
         setManualTenantName("");
+      } else {
+        alert(data.error || "Failed to save task");
       }
     } catch (err) {
-      console.error("Failed to create manual task:", err);
+      console.error("Failed to save manual task:", err);
+      alert("An error occurred");
     } finally {
       setIsCreatingManual(false);
     }
@@ -307,7 +318,14 @@ export default function OwnerMaintenancePage() {
             </Link>
 
             <button
-              onClick={() => setShowManualModal(true)}
+              onClick={() => {
+                setEditingTask(null);
+                setManualRoomNumber("");
+                setManualDescription("");
+                setManualTenantName("");
+                setManualCategory("PLUMBING");
+                setShowManualModal(true);
+              }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-default shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -620,6 +638,21 @@ export default function OwnerMaintenancePage() {
                   )}
 
                   <button
+                    onClick={() => {
+                      setEditingTask(task);
+                      setManualRoomNumber(task.roomNumber);
+                      setManualDescription(task.description);
+                      setManualTenantName(task.tenantName || "");
+                      setManualCategory(task.category);
+                      setShowManualModal(true);
+                    }}
+                    title="Edit task"
+                    className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-default cursor-pointer"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+
+                  <button
                     onClick={() => handleDeleteTask(task.id)}
                     title="Delete task"
                     className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-default cursor-pointer"
@@ -676,11 +709,14 @@ export default function OwnerMaintenancePage() {
               <div className="flex items-center gap-2">
                 <Wrench className="w-5 h-5 text-slate-900" />
                 <h3 className="text-base font-extrabold text-slate-900">
-                  Log Maintenance Issue
+                  {editingTask ? "Edit Maintenance Issue" : "Log Maintenance Issue"}
                 </h3>
               </div>
               <button
-                onClick={() => setShowManualModal(false)}
+                onClick={() => {
+                  setShowManualModal(false);
+                  setEditingTask(null);
+                }}
                 className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -752,7 +788,10 @@ export default function OwnerMaintenancePage() {
               <div className="pt-2 flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowManualModal(false)}
+                  onClick={() => {
+                    setShowManualModal(false);
+                    setEditingTask(null);
+                  }}
                   className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -762,7 +801,7 @@ export default function OwnerMaintenancePage() {
                   disabled={isCreatingManual}
                   className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer disabled:opacity-50"
                 >
-                  {isCreatingManual ? "Logging..." : "Create Task"}
+                  {isCreatingManual ? "Saving..." : (editingTask ? "Save Changes" : "Create Task")}
                 </button>
               </div>
             </form>

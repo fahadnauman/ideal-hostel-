@@ -38,7 +38,8 @@ export default function RoomQrModal({
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "http://localhost:3000";
-  const hubUrl = `${origin}/tenant-portal?room=${encodeURIComponent(room.roomNumber)}`;
+  // Add roomId and timestamp to bust cache and tie QR exactly to the room's current identifier
+  const hubUrl = `${origin}/tenant-portal?room=${encodeURIComponent(room.roomNumber)}&roomId=${encodeURIComponent(room.id)}&t=${Date.now()}`;
 
   const handleCopyLink = async () => {
     try {

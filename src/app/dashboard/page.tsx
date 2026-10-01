@@ -23,7 +23,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import type { MaintenanceTask, Tenant } from "@/types";
-import { mockRoomsByFloor as initialRooms } from "@/data/mock-rooms";
+
 
 /* ─── Metric Card Data ──────────────────────────────────── */
 
@@ -310,13 +310,7 @@ export default function DashboardPage() {
           setTotalBeds(tb);
         }
       } catch {
-        let tb = 0;
-        Object.values(initialRooms).forEach((floor: any) => {
-          floor.forEach((room: any) => {
-            tb += room.beds.length;
-          });
-        });
-        setTotalBeds(tb);
+        setTotalBeds(0);
       }
     }
     fetchRooms();

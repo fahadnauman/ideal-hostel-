@@ -4,6 +4,7 @@ import {
   getAllTenants,
   getTenantById,
   updateTenant,
+  deleteTenant,
   addTenant,
   getTenantPaymentHistory,
   addPaymentRecord,
@@ -426,3 +427,45 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
+
+    const tenant = getTenantById(id);
+    if (!tenant) return NextResponse.json({ success: false, error: "Tenant not found" }, { status: 404 });
+
+    const bedId = tenant.bedId;
+    const deleted = deleteTenant(id);
+
+    if (deleted && bedId) {
+      // Unlink the tenant from the bed
+      for (const [floorKey, floorRooms] of Object.entries(mockRoomsByFloor)) {
+        if (floorRooms.some(r => r.beds.some(b => b.id === bedId))) {
+          mockRoomsByFloor[floorKey] = floorRooms.map(room => {
+            if (room.beds.some(b => b.id === bedId)) {
+              return {
+                ...room,
+                beds: room.beds.map(b => 
+                  b.id === bedId 
+                    ? { ...b, tenant: null, status: "AVAILABLE" } 
+                    : b
+                )
+              };
+            }
+            return room;
+          });
+          break;
+        }
+      }
+    }
+
+    return NextResponse.json({ success: deleted });
+  } catch (error) {
+    console.error("Error deleting tenant:", error);
+    return NextResponse.json({ success: false, error: "Failed to delete" }, { status: 500 });
+  }
+}
+
