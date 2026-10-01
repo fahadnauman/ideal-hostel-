@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching maintenance tasks:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch maintenance tasks" },
+      { success: false, error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -80,17 +80,31 @@ export async function POST(request: NextRequest) {
       } else {
         let floor = await prisma.floor.findFirst();
         if (!floor) {
-          const property = await prisma.property.findFirst();
-          if (property) {
-             floor = await prisma.floor.create({ data: { propertyId: property.id, floorNumber: 1, name: "Ground Floor" } });
+          let property = await prisma.property.findFirst();
+          if (!property) {
+            let user = await prisma.user.findFirst();
+            if (!user) {
+              user = await prisma.user.create({
+                data: {
+                  name: "Default Admin",
+                  email: "admin@idealhostel.com",
+                  passwordHash: "dummyhash",
+                }
+              });
+            }
+            property = await prisma.property.create({
+              data: {
+                ownerId: user.id,
+                name: "Ideal Hostel",
+                address: "123 Main St",
+                city: "Bangalore",
+              }
+            });
           }
+          floor = await prisma.floor.create({ data: { propertyId: property.id, floorNumber: 1, name: "Ground Floor" } });
         }
-        if (floor) {
-          const newRoom = await prisma.room.create({ data: { floorId: floor.id, roomNumber: String(roomNumber).trim().toUpperCase() } });
-          finalRoomId = newRoom.id;
-        } else {
-          return NextResponse.json({ success: false, error: "System has no property/floor setup." }, { status: 400 });
-        }
+        const newRoom = await prisma.room.create({ data: { floorId: floor.id, roomNumber: String(roomNumber).trim().toUpperCase() } });
+        finalRoomId = newRoom.id;
       }
     }
 
@@ -134,7 +148,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating maintenance task:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to create maintenance task" },
+      { success: false, error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -261,7 +275,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error("Error deleting maintenance task:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to delete maintenance task" },
+      { success: false, error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

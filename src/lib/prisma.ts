@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -7,9 +9,14 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = new Proxy({} as PrismaClient, {
   get(target, prop) {
     if (!globalForPrisma.prisma) {
+      const connectionString = process.env.DATABASE_URL;
+      const pool = new Pool({ connectionString });
+      const adapter = new PrismaPg(pool);
+      
       globalForPrisma.prisma = new PrismaClient({
+        adapter,
         log: process.env.NODE_ENV === "development" ? ["query"] : [],
-      } as ConstructorParameters<typeof PrismaClient>[0]);
+      } as any);
     }
     const value = (globalForPrisma.prisma as any)[prop];
     if (typeof value === 'function') {
@@ -20,6 +27,4 @@ export const prisma = new Proxy({} as PrismaClient, {
 });
 
 if (process.env.NODE_ENV !== "production") {
-  // Ensure we don't accidentally overwrite the proxy with the instance in dev mode on reload
-  // Actually, we don't need to do anything since the proxy always reads from globalForPrisma
 }
